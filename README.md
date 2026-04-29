@@ -1,13 +1,11 @@
 # Romanian Visual Speech Recognition
 
-Cod oficial pentru lucrarea **"[Numele lucrării tale]"**.
-
 | 📝 Paper | 🤗 Dataset | 🤗 Models |
 | --- | --- | --- |
 | [Paper](https://...) | [iulik-pisik/ro_vsr](https://huggingface.co/datasets/iulik-pisik/ro_vsr) | [iulik-pisik/ro_vsr_125h_auto](https://huggingface.co/iulik-pisik/ro_vsr_125h_auto) |
 
 Introducem **primul sistem sentence-level de Visual Speech Recognition pentru
-limba română**, antrenat pe ~125 ore de podcast-uri în limba română cu
+limba română**, antrenat pe ~200 ore de podcast-uri în limba română cu
 transcripții generate cu Whisper și aliniere la nivel de cuvânt.
 
 Lucrările anterioare (2020–2025) abordau doar clasificare de cuvinte izolate
