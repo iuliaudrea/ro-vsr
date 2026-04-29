@@ -3,8 +3,8 @@ Inferență pe un singur clip pentru sistemul Romanian VSR.
 
 Exemplu de utilizare:
     python inference.py --fpath samples/sample_1.avi
-    python inference.py --fpath samples/sample_1.avi --model iulik-pisik/ro_vsr_150h_auto
-    python inference.py --fpath samples/sample_1.avi --no-ngram-blocking
+    python inference.py --fpath samples/sample_1.avi --model iulik-pisik/ro_vsr_175h_auto
+    python inference.py --fpath samples/sample_1.avi --no_repeat_ngram_size 0
 
 Clipul de input trebuie să fie un fișier .avi cu cadre de 160x160
 (crop de față centrat pe gură). Pentru video brut, vezi docs/PREPROCESSING.md.
@@ -14,6 +14,11 @@ import argparse
 import os
 import re
 import sys
+import warnings
+
+# Suprimăm warning-urile de la torch.amp.autocast('cuda') când rulăm pe CPU
+# (decoratorii sunt statici în models.py și se evaluează la import)
+warnings.filterwarnings("ignore", message=".*CUDA is not available.*")
 
 import numpy as np
 import torch
