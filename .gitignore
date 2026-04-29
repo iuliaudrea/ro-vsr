@@ -1,0 +1,37 @@
+# Checkpoints (descărcate prin script)
+checkpoints/
+*.pth
+*.pt
+
+# Dataset / sample-uri mari (descărcate prin script)
+data/
+samples/*.avi
+!samples/sample_1.avi
+!samples/sample_2.avi
+!samples/sample_3.avi
+
+# Cod copiat din MultiVSR la setup
+ro_vsr/models.py
+ro_vsr/tokenizer.py
+
+# Python
+__pycache__/
+*.py[cod]
+*.egg-info/
+.venv/
+env_ro_vsr/
+.ipynb_checkpoints/
+
+# IDE
+.vscode/
+.idea/
+*.swp
+
+# OS
+.DS_Store
+Thumbs.db
+
+# Outputs
+outputs/
+*.log
+predictions/

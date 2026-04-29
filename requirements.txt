@@ -1,0 +1,21 @@
+# Core
+torch>=2.0.0
+torchvision>=0.15.0
+torchaudio>=2.0.0
+numpy>=1.24.0
+
+# Citire video (decord2 = fork-ul mentenanțat al decord)
+decord2==3.0.0
+
+# HuggingFace pentru descărcat modelele
+huggingface_hub>=0.20.0
+
+# Tokenizer Whisper (cerut de tokenizer.py din MultiVSR)
+tiktoken>=0.5.0
+
+# Utilitare
+tqdm>=4.65.0
+
+# (Opțional) doar pentru evaluate.py / development
+jiwer>=3.0.0
+pandas>=2.0.0

@@ -1,0 +1,6 @@
+file_path,transcript,podcast,duration_s,split
+samples/sample_1.avi,"transcrierea de referință 1",podcast_X,3.5,test_seen
+samples/sample_2.avi,"transcrierea de referință 2",podcast_Y,4.2,test_seen
+samples/sample_3.avi,"transcrierea de referință 3",podcast_Z,3.8,test_unseen
+samples/sample_4.avi,"transcrierea de referință 4",podcast_W,5.0,test_unseen
+samples/sample_5.avi,"transcrierea de referință 5",podcast_V,4.5,test_unseen
