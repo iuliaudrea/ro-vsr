@@ -5,10 +5,6 @@ checkpoints/
 
 # Dataset / sample-uri mari (descărcate prin script)
 data/
-samples/*.avi
-!samples/sample_1.avi
-!samples/sample_2.avi
-!samples/sample_3.avi
 
 # Cod copiat din MultiVSR la setup
 ro_vsr/models.py
