@@ -33,13 +33,6 @@ source env_ro_vsr/bin/activate
 pip install -r requirements.txt
 ```
 
-Apoi rulează scriptul de setup care clonează codul de bază din MultiVSR
-(arhitectura modelului) și descarcă feature extractor-ul VTP:
-
-```bash
-bash scripts/setup.sh
-bash scripts/download_checkpoints.sh
-```
 
 > **Notă**: Codul nostru se bazează pe arhitectura din
 > [MultiVSR](https://github.com/Sindhu-Hegde/multivsr) (Prajwal et al., 2025).
@@ -50,7 +43,6 @@ Testat pe Python 3.10 și Python 3.11 cu CUDA 11.8 / 12.1.
 ## Inferență rapidă pe un sample
 
 ```bash
-bash scripts/download_samples.sh
 python inference.py --fpath samples/sample_1.avi
 ```
 
