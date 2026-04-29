@@ -19,10 +19,6 @@ This repository contains:
 The training pipeline and the full dataset are described in the paper
 and released separately on the HuggingFace Hub.
 
-## News
-
-- **[2026.04]** 🚀 Inference code and models released
-
 ## Installation
 
 ```bash
