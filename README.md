@@ -1,11 +1,7 @@
 # VSRo-200: Sentence-level Visual Speech Recognition for Romanian
 
 Official code for **"[Paper title]"**.
-**Authors**: [Author 1], [Author 2].
-
-| 📝 Paper | 🤗 Dataset | 🤗 Models |
-| --- | --- | --- |
-| [Paper](https://...) | [VSRo-200 on HF](https://huggingface.co/datasets/iulik-pisik/ro_vsr) | [ro_vsr_175h_auto](https://huggingface.co/iulik-pisik/ro_vsr_175h_auto) |
+**Authors**: [Author 1], [Author 2], [Author 3]
 
 We introduce **VSRo-200**, the first sentence-level dataset and visual
 speech recognition system for Romanian. The dataset contains ~200 hours
