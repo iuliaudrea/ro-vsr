@@ -31,7 +31,7 @@ from ro_vsr.beam_search_ngram import beam_search_with_rep_penalty
 # CONFIG IMPLICIT
 # ============================================================
 
-DEFAULT_MODEL = "iulik-pisik/ro_vsr_125h_auto"
+DEFAULT_MODEL = "iulik-pisik/ro_vsr_175h_auto"
 DEFAULT_VTP_URL = (
     "https://www.robots.ox.ac.uk/~vgg/research/vtp-for-lip-reading/"
     "checkpoints/extended_train_data/feature_extractor.pth"
@@ -233,6 +233,10 @@ def main():
         help="Lungime maximă de output (în token-uri)",
     )
     parser.add_argument(
+        "--no_repeat_ngram_size", type=int, default=5,
+        help="Dimensiunea n-gram-ului blocat la repetare (0 = dezactivat)",
+    )
+    parser.add_argument(
         "--device", type=str, default=None,
         help="Device explicit (cuda / cpu). Implicit: auto.",
     )
@@ -262,6 +266,7 @@ def main():
         device=device,
         beam_size=args.beam_size,
         max_len=args.max_len,
+        no_repeat_ngram_size=args.no_repeat_ngram_size,
     )
 
     # Output

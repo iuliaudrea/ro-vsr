@@ -86,6 +86,8 @@ def main():
     parser.add_argument("--output", type=str, default="predictions.csv")
     parser.add_argument("--beam_size", type=int, default=5)
     parser.add_argument("--max_len", type=int, default=256)
+    parser.add_argument("--no_repeat_ngram_size", type=int, default=5,
+                        help="Dimensiunea n-gram-ului blocat (0 = dezactivat)")
     parser.add_argument("--device", type=str, default=None)
     args = parser.parse_args()
 
@@ -113,6 +115,7 @@ def main():
                 faces=faces, model=model, visual_encoder=visual_encoder,
                 tokenizer=tokenizer, device=device,
                 beam_size=args.beam_size, max_len=args.max_len,
+                no_repeat_ngram_size=args.no_repeat_ngram_size,
             )
         except Exception as e:
             print(f"[eval] ⚠️  Eroare {fname}: {e}")
