@@ -11,7 +11,7 @@ first sentence-level baseline for Romanian.
 
 
 <p align="center">
-    <img src="samples/VSRo-200 (4).gif"/>
+    <img src="samples/VSRo-200 (5).gif"/>
 </p>
 
 This repository contains:
