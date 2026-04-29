@@ -1,5 +1,6 @@
 # Checkpoints (descărcate prin script)
 checkpoints/
+ro_vsr/checkpoints/
 *.pth
 *.pt
 

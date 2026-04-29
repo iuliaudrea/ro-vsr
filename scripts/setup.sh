@@ -3,9 +3,12 @@
 #
 # De rulat o singură dată după git clone, înainte de prima inferență.
 #
-# Avem nevoie de doar 2 fișiere din MultiVSR:
-#   - models.py    (definiția arhitecturii encoder-decoder + visual encoder)
-#   - tokenizer.py (tokenizer-ul Whisper, configurat pentru MultiVSR)
+# Avem nevoie de:
+#   - ro_vsr/models.py
+#   - ro_vsr/tokenizer.py
+#   - ro_vsr/checkpoints/multilingual/  (fișierele locale de tokenizer:
+#                                        vocab.json, merges.txt, etc.
+#                                        Path-ul e relativ la tokenizer.py)
 
 set -e
 
@@ -15,11 +18,17 @@ TMP_DIR="$(mktemp -d)"
 echo "[setup] Clonez MultiVSR în $TMP_DIR ..."
 git clone --depth 1 https://github.com/Sindhu-Hegde/multivsr.git "$TMP_DIR/multivsr"
 
-echo "[setup] Copiez fișierele necesare în ro_vsr/ ..."
+echo "[setup] Copiez fișierele Python în ro_vsr/ ..."
 for f in models.py tokenizer.py; do
     cp "$TMP_DIR/multivsr/$f" "$REPO_DIR/ro_vsr/$f"
     echo "        ✅ ro_vsr/$f"
 done
+
+echo "[setup] Copiez fișierele de tokenizer în ro_vsr/checkpoints/multilingual/ ..."
+mkdir -p "$REPO_DIR/ro_vsr/checkpoints/multilingual"
+cp -r "$TMP_DIR/multivsr/checkpoints/multilingual/." "$REPO_DIR/ro_vsr/checkpoints/multilingual/"
+N_FILES=$(ls "$REPO_DIR/ro_vsr/checkpoints/multilingual" | wc -l | tr -d ' ')
+echo "        ✅ ro_vsr/checkpoints/multilingual/ ($N_FILES fișiere)"
 
 echo "[setup] Curăț ..."
 rm -rf "$TMP_DIR"
