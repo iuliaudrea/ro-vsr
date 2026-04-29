@@ -1,3 +1,7 @@
-file_path,transcript,podcast,duration_s,split
-samples/sample_1.avi,"nu mă interesează să demonstrez ceva ce am avut de demonstrat zic eu că am cam demonstrat așa",tavi_colen_sC4TFnxQKSY_clip_48,3.5,test
-samples/sample_2.avi,"băi și îți dai seama nu aveți voie să fumați o să vă spun",cristina_cioran_xtBvsXwjLq8_clip_72,4.2,test
+file_path,reference,category,subset,duration_s,notes
+samples/sample_1.avi,"nu mă interesează să demonstrez ceva ce am avut de demonstrat zic eu că am cam demonstrat așa",podcast,test,3,"Podcast recording"
+samples/sample_2.avi,"băi și îți dai seama nu aveți voie să fumați o să vă spun",podcast,test,4,"Podcast recording"
+samples/sample_3.avi,"cred că ăsta e cel mai frumos mod să descoperi un oraș o iei e așa la pas nu știi nimic nu știu la ce să te aștepți și acum am dat și de china town",vlog,test_ood,8,"Vlog footage with movement and changing background"
+samples/sample_4.avi,"opoziții tot astfel cum o judecată are două valori adevărată sau fals",black_and_white,test_ood,9,"Archival black-and-white footage; lower effective resolution"
+samples/sample_5.avi,"dar nu-l mai poate suporta nimeni atâta timp cât te bagi tu în în poliție",noisy_scene,test_ood,6,"Recording in a noisy environment; relevant for AVSR comparison"
+samples/sample_6.avi,"ne referim la creșterea particulelor de ldl colesterol care sunt agresive la nivelul peretelui arterial la trigliceride sau din contră scăderea acelor particule de colesterol",domain_specific,test_ood,13,"Romanian Academy talk; medical vocabulary outside conversational distribution"

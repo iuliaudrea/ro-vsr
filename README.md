@@ -1,25 +1,27 @@
 # VSRo-200: Sentence-level Visual Speech Recognition for Romanian
 
-Official code for **"[Paper title]"**.
-**Authors**: [Author 1], [Author 2], [Author 3]
+Inference code and demo for the VSRo-200 dataset and baseline models.
 
 We introduce **VSRo-200**, the first sentence-level dataset and visual
-speech recognition system for Romanian. The dataset contains ~200 hours
-of Romanian podcast recordings with Whisper-generated transcriptions and
-word-level alignments.
+speech recognition system for Romanian. The dataset contains approximately
+200 hours of Romanian podcast recordings with Whisper-generated
+transcriptions and word-level alignments. Prior work (2020–2025) addressed
+only isolated word classification on the LRRo dataset; we provide the
+first sentence-level baseline for Romanian.
 
-While prior work (2020–2025) addressed only isolated word classification
-on the LRRo dataset, we provide:
+This repository contains:
 
-- 🎬 The first **sentence-level** open-source dataset for Romanian VSR
-  (~200 hours of raw video, ~125 hours with clean transcripts)
-- 🧠 The first **sentence-level baseline** for Romanian
-  (WER ~XX% on test_seen, ~YY% on test_unseen)
-- 🔧 A complete open-source pipeline: preprocessing, training, and inference
+- The inference code and pre-trained encoder-decoder models
+- Demo clips covering different categories of our test set (clean
+  podcasts, vlogs, archival footage, noisy scenes, academic talks)
+- Documentation for evaluating the model on your own clips
+
+The training pipeline and the full dataset are described in the paper
+and released separately on the HuggingFace Hub.
 
 ## News
 
-- **[2026.04]** 🚀 Code and models released
+- **[2026.04]** 🚀 Inference code and models released
 
 ## Installation
 
@@ -64,13 +66,31 @@ A GPU is recommended but not required.
 
 ## Demo samples
 
-| File | Duration | Reference transcription |
-| --- | --- | --- |
-| `samples/sample_1.avi` | 3.5s | "nu mă interesează să demonstrez ceva ce am avut de demonstrat zic eu că am cam demonstrat așa" |
-| `samples/sample_2.avi` | 4.2s | "băi și îți dai seama nu aveți voie să fumați o să vă spun" |
+We provide 8 demo clips covering different categories of our test set.
+The selection includes both well-performing cases and deliberate failure
+modes that illustrate the model's limitations:
+
+| File | Category | Subset | Reference |
+| --- | --- | --- | --- |
+| `sample_1.avi` | Podcast (clean) | test_seen | "nu mă interesează să demonstrez ceva..." |
+| `sample_2.avi` | Podcast (clean) | test_seen | "băi și îți dai seama nu aveți voie..." |
+| `sample_3.avi` | Vlog | test_ood | "..." |
+| `sample_4.avi` | Black-and-white | test_ood | "..." (archival footage; failure mode: low resolution) |
+| `sample_5.avi` | Noisy scene | test_ood | "..." (relevant for AVSR comparison) |
+| `sample_6.avi` | Academic talk | test_ood | "..." (failure mode: technical vocabulary) |
+| `sample_7.avi` | Podcast | test_unseen | "..." (unseen speaker) |
+| `sample_8.avi` | Podcast | test_unseen | "..." (unseen speaker) |
 
 See [`samples/samples_metadata.csv`](samples/samples_metadata.csv) for
 full metadata.
+
+To run inference on all samples at once:
+
+```bash
+for i in 1 2 3 4 5 6 7 8; do
+    python inference.py --fpath samples/sample_${i}.avi
+done
+```
 
 ## CLI options
 
