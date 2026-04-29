@@ -15,10 +15,6 @@ first sentence-level baseline for Romanian.
 </p>
 
 
-<p align="center">
-    <img src="samples/VSRo-200 (6).gif"/>
-</p>
-
 This repository contains:
 
 - The inference code and pre-trained encoder-decoder models
