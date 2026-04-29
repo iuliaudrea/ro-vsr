@@ -1,7 +1,6 @@
 # Romanian Visual Speech Recognition
 
 Cod oficial pentru lucrarea **"[Numele lucrării tale]"**.
-**Autori**: Iulia [Nume] și [Advisor].
 
 | 📝 Paper | 🤗 Dataset | 🤗 Models |
 | --- | --- | --- |
