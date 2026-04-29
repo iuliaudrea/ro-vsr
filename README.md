@@ -10,6 +10,10 @@ only isolated word classification on the LRRo dataset; we provide the
 first sentence-level baseline for Romanian.
 
 
+<p align="center">
+    <img src="samples/VSRo-200.gif"/>
+</p>
+
 This repository contains:
 
 - The inference code and pre-trained encoder-decoder models
