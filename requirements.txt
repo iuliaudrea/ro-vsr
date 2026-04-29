@@ -4,25 +4,25 @@ torchvision>=0.15.0
 torchaudio>=2.0.0
 numpy>=1.24.0
 
-# Citire video (decord2 = fork-ul mentenanțat al decord)
+# Video reading (decord2 = maintained fork of decord)
 decord2==3.0.0
 
-# HuggingFace pentru descărcat modelele
+# HuggingFace for downloading the model
 huggingface_hub>=0.20.0
 
-# Tokenizer Whisper-style (folosit de ro_vsr/tokenizer.py copiat din MultiVSR)
-# Notă: dacă întâlnești HFValidationError la încărcarea tokenizer-ului local,
-# downgradează cu: pip install "transformers<4.45"
+# Whisper-style tokenizer (used by ro_vsr/tokenizer.py copied from MultiVSR)
+# Note: if you encounter HFValidationError when loading the local tokenizer,
+# downgrade with: pip install "transformers<4.45"
 transformers>=4.30.0
 
-# Dependențe tranzitive ale ro_vsr/models.py (copiat din MultiVSR)
-# Definește arhitectura encoder-decoder cu linear attention
+# Transitive dependencies of ro_vsr/models.py (copied from MultiVSR)
+# Defines the encoder-decoder architecture with linear attention
 linear-attention-transformer>=0.19.0
 einops>=0.7.0
 
-# Utilitare
+# Utilities
 tqdm>=4.65.0
 
-# (Opțional) doar pentru evaluate.py
+# (Optional) only needed for evaluate.py
 jiwer>=3.0.0
 pandas>=2.0.0

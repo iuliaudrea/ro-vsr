@@ -1,150 +1,169 @@
-# Romanian Visual Speech Recognition
+# VSRo-200: Sentence-level Visual Speech Recognition for Romanian
+
+Official code for **"[Paper title]"**.
+**Authors**: [Author 1], [Author 2].
 
 | 📝 Paper | 🤗 Dataset | 🤗 Models |
 | --- | --- | --- |
-| [Paper](https://...) | [iulik-pisik/ro_vsr](https://huggingface.co/datasets/iulik-pisik/ro_vsr) | [iulik-pisik/ro_vsr_125h_auto](https://huggingface.co/iulik-pisik/ro_vsr_125h_auto) |
+| [Paper](https://...) | [VSRo-200 on HF](https://huggingface.co/datasets/iulik-pisik/ro_vsr) | [ro_vsr_175h_auto](https://huggingface.co/iulik-pisik/ro_vsr_175h_auto) |
 
-Introducem **primul sistem sentence-level de Visual Speech Recognition pentru
-limba română**, antrenat pe ~200 ore de podcast-uri în limba română cu
-transcripții generate cu Whisper și aliniere la nivel de cuvânt.
+We introduce **VSRo-200**, the first sentence-level dataset and visual
+speech recognition system for Romanian. The dataset contains ~200 hours
+of Romanian podcast recordings with Whisper-generated transcriptions and
+word-level alignments.
 
-Lucrările anterioare (2020–2025) abordau doar clasificare de cuvinte izolate
-pe dataset-ul LRRo. Contribuția principală a acestei lucrări:
+While prior work (2020–2025) addressed only isolated word classification
+on the LRRo dataset, we provide:
 
-- 🎬 Primul **dataset sentence-level** open-source pentru română VSR
-  (~175h+ de date brute, ~125h cu transcripții curate)
-- 🧠 Prima **baseline pe propoziții** pentru română (WER ~XX% pe test_seen,
-  ~YY% pe test_unseen)
-- 🔧 Pipeline complet open-source: preprocesare, antrenare, inferență
+- 🎬 The first **sentence-level** open-source dataset for Romanian VSR
+  (~200 hours of raw video, ~125 hours with clean transcripts)
+- 🧠 The first **sentence-level baseline** for Romanian
+  (WER ~XX% on test_seen, ~YY% on test_unseen)
+- 🔧 A complete open-source pipeline: preprocessing, training, and inference
 
 ## News
 
-- **[2026.04]** 🚀 Lansare cod și modele
+- **[2026.04]** 🚀 Code and models released
 
-## Instalare
+## Installation
 
 ```bash
-git clone https://github.com/iulik-pisik/ro-vsr.git
+git clone https://github.com/iuliaudrea/ro-vsr.git
 cd ro-vsr
-python -m venv env_ro_vsr
-source env_ro_vsr/bin/activate
 pip install -r requirements.txt
+bash scripts/setup.sh
 ```
 
+`setup.sh` handles everything: it clones MultiVSR (model architecture and
+tokenizer) and downloads the VTP feature extractor (~1 GB, from VGG Oxford).
 
-> **Notă**: Codul nostru se bazează pe arhitectura din
+> **Note**: Our code builds on the architecture from
 > [MultiVSR](https://github.com/Sindhu-Hegde/multivsr) (Prajwal et al., 2025).
-> Vezi [`docs/CREDITS.md`](docs/CREDITS.md) pentru atribuiri complete.
+> See [`docs/CREDITS.md`](docs/CREDITS.md) for full attribution.
 
-Testat pe Python 3.10 și Python 3.11 cu CUDA 11.8 / 12.1.
+Tested on Python 3.10–3.12, on both GPU and CPU.
 
-## Inferență rapidă pe un sample
+## Quick inference on a sample
 
 ```bash
 python inference.py --fpath samples/sample_1.avi
 ```
 
-Output așteptat:
+Expected output:
 
 ```
 [device] cuda
-[load] Descarc enc-dec din iulik-pisik/ro_vsr_125h_auto ...
-[load] ✅ Modele încărcate cu succes
-[video] Frames extrase: (1, 3, 87, 96, 96)
-[infer] Rulez inferența ...
+[load] Downloading encoder-decoder from iulik-pisik/ro_vsr_175h_auto ...
+[load] ✅ Models loaded successfully
+[video] Frames extracted: (1, 3, 146, 96, 96)
+[infer] Running inference ...
 ──────────────────────────────────────────────────────────────────────
-Fișier:       samples/sample_1.avi
-Transcriere:  și atunci am început să mă gândesc la ce înseamnă
+File:           samples/sample_1.avi
+Transcription:  nu mă interesează să demonstrez ceva ce am avut de demonstrat sigur că am cam demonstrat așa
 ──────────────────────────────────────────────────────────────────────
 ```
 
-## Sample-uri demo
+Inference runs on both GPU (~2s/clip on T4) and CPU (~45 min/clip).
+A GPU is recommended but not required.
 
-| Fișier | Durată | Transcriere reală |
+## Demo samples
+
+| File | Duration | Reference transcription |
 | --- | --- | --- |
-| `samples/sample_1.avi` | ~3.5s | *(text de referință)* |
-| `samples/sample_2.avi` | ~4.2s | *(text de referință)* |
-| `samples/sample_3.avi` | ~3.8s | *(text de referință)* |
-| `samples/sample_4.avi` | ~5.0s | *(text de referință)* |
-| `samples/sample_5.avi` | ~4.5s | *(text de referință)* |
+| `samples/sample_1.avi` | 3.5s | "nu mă interesează să demonstrez ceva ce am avut de demonstrat zic eu că am cam demonstrat așa" |
+| `samples/sample_2.avi` | 4.2s | "băi și îți dai seama nu aveți voie să fumați o să vă spun" |
 
-Vezi [`samples/samples_metadata.csv`](samples/samples_metadata.csv) pentru
-metadate complete.
+See [`samples/samples_metadata.csv`](samples/samples_metadata.csv) for
+full metadata.
 
-## Opțiuni CLI
+## CLI options
 
 ```bash
 python inference.py \
     --fpath samples/sample_1.avi \
-    --model iulik-pisik/ro_vsr_125h_auto \
+    --model iulik-pisik/ro_vsr_175h_auto \
     --beam_size 5 \
-    --max_len 256
+    --max_len 256 \
+    --no_repeat_ngram_size 5
 ```
 
-Opțiuni disponibile:
+Available options:
 
-- `--fpath`: clipul .avi de input (160x160, crop pe gură) — **obligatoriu**
-- `--model`: repo HuggingFace al modelului enc-dec (default: `ro_vsr_125h_auto`)
-- `--vtp_path`: path către feature extractor (default: `checkpoints/feature_extractor.pth`)
+- `--fpath`: input .avi clip (160x160, mouth crop) — **required**
+- `--model`: HuggingFace repo of the encoder-decoder model (default: `ro_vsr_175h_auto`)
+- `--vtp_path`: path to the feature extractor (default: `checkpoints/feature_extractor.pth`)
 - `--beam_size`: beam size (default: `5`)
 - `--max_len`: max output tokens (default: `256`)
-- `--device`: `cuda` sau `cpu` (default: auto)
+- `--no_repeat_ngram_size`: block n-grams of this size from repeating (default: `5`, set to `0` to disable)
+- `--device`: `cuda` or `cpu` (default: auto-detect)
 
-## Modele disponibile
+## Available models
 
-| Model | Date antrenare | WER test_seen | WER test_unseen |
+| Model | Training data | WER test_seen | WER test_unseen |
 | --- | --- | --- | --- |
-| `iulik-pisik/ro_vsr_125h_auto` | ~125h podcast-uri RO | XX% | YY% |
-| `iulik-pisik/ro_vsr_150h_auto` | ~150h podcast-uri RO | XX% | YY% |
-| `iulik-pisik/ro_vsr_100h` | ~100h subset | XX% | YY% |
+| `iulik-pisik/ro_vsr_175h_auto` | ~175h Romanian podcasts | XX% | YY% |
+| `iulik-pisik/ro_vsr_125h_auto` | ~125h Romanian podcasts | XX% | YY% |
 
-## Pe video brut (din afara dataset-ului)
+## Inference on raw video
 
-Inferența directă funcționează doar pe clipuri **deja preprocesate**
-(160x160, crop pe gură). Pentru video brut (un .mp4 oarecare cu o persoană
-care vorbește), trebuie întâi rulată detecția feței și extragerea regiunii
-gurii. Recomandăm pipeline-ul de preprocesare al MultiVSR (bazat pe SyncNet):
+Direct inference works only on **already-preprocessed** clips (160x160 with
+mouth crop). For raw video (an arbitrary .mp4 of someone speaking),
+face detection and mouth region extraction must be applied first. We
+recommend the MultiVSR preprocessing pipeline (based on SyncNet):
 
 ```bash
 git clone https://github.com/Sindhu-Hegde/multivsr.git
 cd multivsr/preprocess
 python run_pipeline.py \
-    --videofile <calea_la_video.mp4> \
+    --videofile <path/to/video.mp4> \
     --reference my_clip \
     --data_dir /tmp/processed
 ```
 
-Apoi:
+Then:
 
 ```bash
 python inference.py --fpath /tmp/processed/my_clip/pycrop/00000.avi
 ```
 
-Detalii în [`docs/PREPROCESSING.md`](docs/PREPROCESSING.md).
+See [`docs/PREPROCESSING.md`](docs/PREPROCESSING.md) for details.
 
 ## Dataset
 
-Dataset-ul complet (~175h podcast-uri în limba română cu transcripții și
-aliniere word-level) este disponibil pe HuggingFace:
+The full VSRo-200 dataset (~200h of Romanian podcasts with transcriptions
+and word-level alignments) is available on HuggingFace:
 [iulik-pisik/ro_vsr](https://huggingface.co/datasets/iulik-pisik/ro_vsr).
 
-Vezi [`docs/DATASET.md`](docs/DATASET.md) pentru detalii despre splits,
-preprocesare și statistici.
+See [`docs/DATASET.md`](docs/DATASET.md) for splits, preprocessing, and
+statistics.
+
+## Other experiments
+
+The paper additionally reports results on:
+
+- **Audio-Visual Speech Recognition (AVSR)**: noise-robust evaluation
+  combining VSRo-200 with audio fused via cross-modal attention.
+- **Word-level classification on LRRo**: evaluation of our encoder
+  representations on the LRRo benchmark (Țucă et al., 2020).
+
+The code for these experiments will be released in `evaluation/` in a
+follow-up update. The LRRo dataset must be obtained directly from its
+authors and is not redistributed here.
 
 ## Citation
 
-Dacă folosești codul, modelele sau dataset-ul, te rugăm să citezi:
+If you use this code, the models, or the VSRo-200 dataset, please cite:
 
 ```bibtex
-@inproceedings{[id]2026rovsr,
-    author    = "[Iulia Nume] and [Advisor]",
-    title     = "[Titlul lucrării]",
+@inproceedings{[id]2026vsro200,
+    author    = "[Author 1] and [Author 2]",
+    title     = "[Paper title]",
     booktitle = "Advances in Neural Information Processing Systems Datasets and Benchmarks Track",
     year      = "2026",
 }
 ```
 
-Te rugăm să citezi și lucrarea de bază pe care ne sprijinim:
+Please also cite the foundational work we build upon:
 
 ```bibtex
 @inproceedings{prajwal2025multivsr,
@@ -156,9 +175,9 @@ Te rugăm să citezi și lucrarea de bază pe care ne sprijinim:
 }
 ```
 
-## Licență
+## License
 
-Codul nostru: **MIT**.
-Codul preluat din MultiVSR (`ro_vsr/models.py`, `ro_vsr/tokenizer.py`,
-descărcat de `scripts/setup.sh`):
-proprietate [Prajwal & Hegde](https://github.com/Sindhu-Hegde/multivsr).
+Our code: **MIT**.
+Code from MultiVSR (`ro_vsr/models.py`, `ro_vsr/tokenizer.py`,
+downloaded by `scripts/setup.sh`):
+property of [Prajwal & Hegde](https://github.com/Sindhu-Hegde/multivsr).

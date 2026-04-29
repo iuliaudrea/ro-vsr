@@ -1,12 +1,12 @@
 """
-Beam search cu n-gram blocking și repetition penalty.
+Beam search with n-gram blocking and repetition penalty.
 
-Identic cu beam search-ul din MultiVSR (vezi `search.py`), plus:
-  - repetition_penalty pe ultimele `repetition_window` token-uri
-  - blocarea n-gram-urilor repetate (parametru `no_repeat_ngram_size`)
+Identical to the beam search in MultiVSR (`search.py`), with two additions:
+  - repetition_penalty over the last `repetition_window` tokens
+  - blocking of repeated n-grams (parameter `no_repeat_ngram_size`)
 
-Folosit pentru a reduce halucinațiile/buclele de tip
-"și și și și ..." pe care le observăm la decodarea autoregresivă.
+Used to reduce the hallucinations and "și și și ..." style loops
+that we observed during autoregressive decoding.
 """
 
 import torch
@@ -14,7 +14,7 @@ import torch.nn.functional as F
 
 
 def tile(x, count, dim=0):
-    """Repetă tensor-ul de `count` ori pe dimensiunea `dim`."""
+    """Repeat the tensor `count` times along dimension `dim`."""
     if isinstance(x, tuple):
         h, c = x
         return tile(h, count, dim=dim), tile(c, count, dim=dim)
@@ -39,7 +39,7 @@ def tile(x, count, dim=0):
 
 
 def apply_repetition_penalty(log_probs, alive_seq, penalty, window, special_token_ids):
-    """Penalizează tokenii care au apărut în ultimii `window` pași."""
+    """Penalize tokens that have appeared in the last `window` steps."""
     if penalty <= 1.0 or window <= 0:
         return log_probs
 
@@ -61,7 +61,7 @@ def apply_repetition_penalty(log_probs, alive_seq, penalty, window, special_toke
 
 
 def apply_no_repeat_ngram(log_probs, alive_seq, ngram_size):
-    """Blochează tokenii care ar forma un n-gram deja prezent în secvență."""
+    """Block tokens that would form an n-gram already present in the sequence."""
     if ngram_size <= 0:
         return log_probs
 
@@ -107,8 +107,8 @@ def beam_search_with_rep_penalty(
     special_token_ids=None,
 ):
     """
-    Beam search identic cu cel din MultiVSR (`search.py`), plus
-    repetition penalty și n-gram blocking.
+    Beam search identical to MultiVSR's (`search.py`), plus repetition
+    penalty and n-gram blocking.
     """
     from ro_vsr.dataloader_utils import subsequent_mask
 

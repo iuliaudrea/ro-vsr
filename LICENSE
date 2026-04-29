@@ -1,6 +1,6 @@
 MIT License
 
-Copyright (c) 2026 Iulia [Nume]
+Copyright (c) 2026 [Author Name]
 
 Permission is hereby granted, free of charge, to any person obtaining a copy
 of this software and associated documentation files (the "Software"), to deal
@@ -24,7 +24,7 @@ SOFTWARE.
 
 Note: This license applies only to original code in this repository
 (`inference.py`, `evaluate.py`, `ro_vsr/beam_search_ngram.py`,
-`ro_vsr/dataloader_utils.py`, scripts and documentation).
+`ro_vsr/dataloader_utils.py`, scripts, and documentation).
 
 The files `ro_vsr/models.py` and `ro_vsr/tokenizer.py` are downloaded from
 https://github.com/Sindhu-Hegde/multivsr by `scripts/setup.sh` and remain

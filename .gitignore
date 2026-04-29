@@ -1,13 +1,13 @@
-# Checkpoints (descărcate prin script)
+# Checkpoints (downloaded by setup.sh)
 checkpoints/
 ro_vsr/checkpoints/
 *.pth
 *.pt
 
-# Dataset / sample-uri mari (descărcate prin script)
+# Dataset (downloaded separately)
 data/
 
-# Cod copiat din MultiVSR la setup
+# Code copied from MultiVSR at setup
 ro_vsr/models.py
 ro_vsr/tokenizer.py
 

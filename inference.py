@@ -1,13 +1,13 @@
 """
-Inferență pe un singur clip pentru sistemul Romanian VSR.
+Single-clip inference for the Romanian VSR system (VSRo-200).
 
-Exemplu de utilizare:
+Example usage:
     python inference.py --fpath samples/sample_1.avi
     python inference.py --fpath samples/sample_1.avi --model iulik-pisik/ro_vsr_175h_auto
     python inference.py --fpath samples/sample_1.avi --no_repeat_ngram_size 0
 
-Clipul de input trebuie să fie un fișier .avi cu cadre de 160x160
-(crop de față centrat pe gură). Pentru video brut, vezi docs/PREPROCESSING.md.
+Input clips must be .avi files with 160x160 frames (face crop centered on
+the mouth). For raw video, see docs/PREPROCESSING.md.
 """
 
 import argparse
@@ -16,15 +16,15 @@ import re
 import sys
 import warnings
 
-# Suprimăm warning-urile de la torch.amp.autocast('cuda') când rulăm pe CPU
-# (decoratorii sunt statici în models.py și se evaluează la import)
+# Suppress autocast warnings when running on CPU (decorators in models.py
+# are static and evaluated at import time)
 warnings.filterwarnings("ignore", message=".*CUDA is not available.*")
 
 import numpy as np
 import torch
 from huggingface_hub import hf_hub_download
 
-# Adăugăm package-ul `ro_vsr/` în path
+# Add the `ro_vsr/` package to path
 sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
 
 from ro_vsr.models import build_model, build_visual_encoder
@@ -33,23 +33,19 @@ from ro_vsr.beam_search_ngram import beam_search_with_rep_penalty
 
 
 # ============================================================
-# CONFIG IMPLICIT
+# DEFAULT CONFIGURATION
 # ============================================================
 
 DEFAULT_MODEL = "iulik-pisik/ro_vsr_175h_auto"
-DEFAULT_VTP_URL = (
-    "https://www.robots.ox.ac.uk/~vgg/research/vtp-for-lip-reading/"
-    "checkpoints/extended_train_data/feature_extractor.pth"
-)
 DEFAULT_VTP_PATH = "checkpoints/feature_extractor.pth"
 
 
 # ============================================================
-# UTILITARE
+# UTILITIES
 # ============================================================
 
 def clean_prediction(text: str) -> str:
-    """Elimină token-urile speciale Whisper din predicție."""
+    """Remove Whisper-style special tokens from the prediction."""
     for token in [
         "<|startoftranscript|>", "<|ro|>", "<|transcribe|>",
         "<|notimestamps|>", "<|endoftext|>",
@@ -59,7 +55,7 @@ def clean_prediction(text: str) -> str:
 
 
 def normalize_text(text: str) -> str:
-    """Lowercase + elimină punctuația (păstrează cratima) + spații normalizate."""
+    """Lowercase, strip punctuation (keeping hyphens), normalize whitespace."""
     if not text:
         return ""
     text = text.lower()
@@ -69,31 +65,31 @@ def normalize_text(text: str) -> str:
 
 
 # ============================================================
-# CITIRE VIDEO
+# VIDEO LOADING
 # ============================================================
 
 def read_video(fpath: str, device: torch.device) -> torch.Tensor:
     """
-    Citește un .avi de 160x160 și returnează tensor [1, 3, T, 96, 96].
+    Read a 160x160 .avi clip and return a tensor of shape [1, 3, T, 96, 96].
 
-    Crop central 96x96 din mijlocul cadrului (zona gurii).
+    Crops the central 96x96 region (the mouth area) from each frame.
     """
     from decord import VideoReader, bridge
     bridge.set_bridge("native")
 
     if not os.path.isfile(fpath):
-        raise FileNotFoundError(f"Fișier video lipsă: {fpath}")
+        raise FileNotFoundError(f"Video file not found: {fpath}")
 
     with open(fpath, "rb") as f:
         vr = VideoReader(f, width=160, height=160)
         frames = vr.get_batch(list(range(len(vr)))).asnumpy()
 
-    # [T, H, W, C] -> [1, C, T, H, W], normalizat la [0, 1]
+    # [T, H, W, C] -> [1, C, T, H, W], normalized to [0, 1]
     frames = frames.astype(np.float32) / 255.0
     frames = torch.from_numpy(frames).to(device).unsqueeze(0)
-    frames = frames.permute(0, 4, 1, 2, 3)  # [1, C, T, H, W]
+    frames = frames.permute(0, 4, 1, 2, 3)
 
-    # Crop central 96x96 (zona gurii)
+    # Center crop 96x96 (mouth region)
     crop_x = (frames.size(3) - 96) // 2
     crop_y = (frames.size(4) - 96) // 2
     faces = frames[:, :, :, crop_x:crop_x + 96, crop_y:crop_y + 96]
@@ -102,21 +98,21 @@ def read_video(fpath: str, device: torch.device) -> torch.Tensor:
 
 
 # ============================================================
-# ÎNCĂRCARE MODELE
+# MODEL LOADING
 # ============================================================
 
 def load_models(model_repo: str, vtp_path: str, device: torch.device):
     """
-    Încarcă VTP feature extractor (din .pth local) + encoder-decoder
-    (din HuggingFace Hub).
+    Load the VTP feature extractor (from local .pth file) and the
+    encoder-decoder model (from HuggingFace Hub).
 
-    Returnează (model, visual_encoder).
+    Returns (model, visual_encoder).
     """
     # --- VTP feature extractor ---
     if not os.path.isfile(vtp_path):
         raise FileNotFoundError(
-            f"Checkpoint VTP lipsă: {vtp_path}\n"
-            f"   Rulează: bash scripts/download_checkpoints.sh"
+            f"VTP checkpoint not found: {vtp_path}\n"
+            f"   Run: bash scripts/setup.sh"
         )
 
     visual_encoder = build_visual_encoder().to(device).eval()
@@ -130,8 +126,8 @@ def load_models(model_repo: str, vtp_path: str, device: torch.device):
     for p in visual_encoder.parameters():
         p.requires_grad = False
 
-    # --- Encoder-decoder de pe HuggingFace ---
-    print(f"[load] Descarc enc-dec din {model_repo} ...")
+    # --- Encoder-decoder from HuggingFace ---
+    print(f"[load] Downloading encoder-decoder from {model_repo} ...")
     lm_path = hf_hub_download(
         repo_id=model_repo,
         filename="checkpoints/best_model.pt",
@@ -140,14 +136,14 @@ def load_models(model_repo: str, vtp_path: str, device: torch.device):
     model = build_model().to(device).eval()
     model.load_state_dict(torch.load(lm_path, map_location=device))
 
-    print(f"[load] ✅ Modele încărcate cu succes")
-    print(f"        VTP:     {vtp_path}")
-    print(f"        Enc-dec: {model_repo}")
+    print(f"[load] ✅ Models loaded successfully")
+    print(f"        VTP:             {vtp_path}")
+    print(f"        Encoder-decoder: {model_repo}")
     return model, visual_encoder
 
 
 # ============================================================
-# INFERENȚĂ
+# INFERENCE
 # ============================================================
 
 def run_inference(
@@ -160,9 +156,7 @@ def run_inference(
     max_len: int = 256,
     no_repeat_ngram_size: int = 5,
 ) -> str:
-    """
-    Rulează un singur forward pass și returnează transcrierea curată.
-    """
+    """Run a single forward pass and return the cleaned transcription."""
     start_prompt_ids = tokenizer.encode(
         "<|startoftranscript|><|ro|><|transcribe|><|notimestamps|>"
     )
@@ -175,7 +169,7 @@ def run_inference(
             src_mask = torch.ones((B, 1, T), device=device).bool()
             memory, _ = model.encode(vid_emb, src_mask)
 
-            # Token-uri speciale care nu trebuie penalizate
+            # Special tokens that should not be penalized by ngram blocking
             special = set()
             for attr in ["sot", "eot", "transcribe", "translate",
                          "no_timestamps", "no_speech", "timestamp_begin"]:
@@ -214,36 +208,36 @@ def run_inference(
 
 def main():
     parser = argparse.ArgumentParser(
-        description="Inferență Romanian VSR pe un singur clip",
+        description="Romanian VSR inference on a single clip",
         formatter_class=argparse.ArgumentDefaultsHelpFormatter,
     )
     parser.add_argument(
         "--fpath", type=str, required=True,
-        help="Calea către clipul .avi de input (160x160)",
+        help="Path to the input .avi clip (160x160)",
     )
     parser.add_argument(
         "--model", type=str, default=DEFAULT_MODEL,
-        help="Repo HuggingFace pentru modelul enc-dec",
+        help="HuggingFace repo for the encoder-decoder model",
     )
     parser.add_argument(
         "--vtp_path", type=str, default=DEFAULT_VTP_PATH,
-        help="Calea către checkpoint-ul VTP feature extractor",
+        help="Path to the VTP feature extractor checkpoint",
     )
     parser.add_argument(
         "--beam_size", type=int, default=5,
-        help="Beam size pentru decodare",
+        help="Beam size for decoding",
     )
     parser.add_argument(
         "--max_len", type=int, default=256,
-        help="Lungime maximă de output (în token-uri)",
+        help="Maximum output length (in tokens)",
     )
     parser.add_argument(
         "--no_repeat_ngram_size", type=int, default=5,
-        help="Dimensiunea n-gram-ului blocat la repetare (0 = dezactivat)",
+        help="Block n-grams of this size from repeating (0 = disabled)",
     )
     parser.add_argument(
         "--device", type=str, default=None,
-        help="Device explicit (cuda / cpu). Implicit: auto.",
+        help="Explicit device (cuda / cpu). Default: auto-detect.",
     )
     args = parser.parse_args()
 
@@ -259,10 +253,10 @@ def main():
 
     # Read
     faces = read_video(args.fpath, device)
-    print(f"[video] Frames extrase: {tuple(faces.shape)}")
+    print(f"[video] Frames extracted: {tuple(faces.shape)}")
 
     # Inference
-    print("[infer] Rulez inferența ...")
+    print("[infer] Running inference ...")
     transcription = run_inference(
         faces=faces,
         model=model,
@@ -276,8 +270,8 @@ def main():
 
     # Output
     print("─" * 70)
-    print(f"Fișier:       {args.fpath}")
-    print(f"Transcriere:  {transcription}")
+    print(f"File:           {args.fpath}")
+    print(f"Transcription:  {transcription}")
     print("─" * 70)
 
 

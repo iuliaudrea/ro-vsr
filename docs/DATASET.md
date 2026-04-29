@@ -1,50 +1,50 @@
-# Dataset
+# VSRo-200 Dataset
 
-Dataset-ul complet este disponibil pe HuggingFace:
+The full dataset is available on HuggingFace:
 [iulik-pisik/ro_vsr](https://huggingface.co/datasets/iulik-pisik/ro_vsr).
 
-## Statistici
+## Statistics
 
-- **Date brute**: ~175h+ podcast-uri în limba română
-- **Date cu transcripții**: ~125h (Whisper transcript + MFA word alignment)
-- **Vorbitori**: [N] vorbitori unici
-- **Sursă**: extras din [N] podcast-uri publice
+- **Raw video**: ~200h of Romanian podcasts
+- **Annotated subset**: ~125h (Whisper transcripts + MFA word alignments)
+- **Speakers**: [N] unique speakers
+- **Source**: [N] publicly available podcasts
 
 ## Splits
 
-| Split | Durată | # Clipuri | Descriere |
+| Split | Duration | # Clips | Description |
 | --- | --- | --- | --- |
-| `train` | ~125h | ~27.6k | Date de antrenare |
+| `train` | ~125h | ~27.6k | Training data |
 | `val` | ~3.5h | ~XXX | Validation |
-| `test_seen` | ~2.6h | ~XXX | Vorbitori văzuți la train |
-| `test_unseen` | ~6.6h | ~XXX | Vorbitori noi |
-| `test_ood` | — | 375 | Domain shift (TODO: descriere) |
+| `test_seen` | ~2.6h | ~XXX | Speakers seen during training |
+| `test_unseen` | ~6.6h | ~XXX | New speakers |
+| `test_ood` | — | 375 | Domain shift evaluation |
 
 ## Format
 
-Date video stocate ca **arhive .tar per podcast**, cu clipuri `.avi` (160x160).
-CSV-uri cu `file_path`, `transcript`, plus alinierile word-level.
+Video data is stored as **per-podcast .tar archives**, with `.avi` clips
+at 160x160 resolution. CSV files contain `file_path`, `transcript`, plus
+word-level alignments.
 
-## Descărcare
+## Download
 
 ```python
 from huggingface_hub import snapshot_download
 snapshot_download(
     repo_id="iulik-pisik/ro_vsr",
     repo_type="dataset",
-    local_dir="./ro_vsr_data",
+    local_dir="./vsro200_data",
 )
 ```
 
-⚠️ Atenție: dataset-ul integral are sute de GB. Pentru testare rapidă,
-descarcă doar `samples/` (vezi [`scripts/download_samples.sh`](../scripts/download_samples.sh)).
+⚠️ Note: the full dataset is hundreds of GBs. For quick testing, see the
+demo samples included in `samples/`.
 
-## Preprocesare
+## Preprocessing
 
-Toate clipurile sunt deja preprocesate:
-- Crop pe față detectată cu [SyncNet](https://github.com/joonson/syncnet_python)
-- Resize la 160x160
+All clips are pre-processed:
+- Face crop using [SyncNet](https://github.com/joonson/syncnet_python)
+- Resize to 160x160
 - 25 fps
 
-Pentru detalii reproductive complete, vezi pipeline-ul de preprocesare în
-[lucrare](https://...) (Section X.Y).
+For full reproducibility details, see Section X.Y of the [paper](https://...).

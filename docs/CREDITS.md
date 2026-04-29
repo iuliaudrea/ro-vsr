@@ -1,24 +1,25 @@
 # Credits
 
-Acest repository se sprijină pe lucrări anterioare. Atribuim cu recunoștință:
+This repository builds on prior work. We gratefully acknowledge:
 
-## MultiVSR (arhitectura modelului)
+## MultiVSR (model architecture)
 
 [Sindhu-Hegde/multivsr](https://github.com/Sindhu-Hegde/multivsr) — Prajwal,
-Hegde și Zisserman (ICASSP 2025).
+Hegde, and Zisserman (ICASSP 2025).
 
-Următoarele fișiere sunt descărcate de `scripts/setup.sh` din repo-ul lor și
-folosite **fără modificări**:
+The following files are downloaded by `scripts/setup.sh` from their
+repository and used **without modification**:
 
-- `ro_vsr/models.py` — definiția arhitecturii encoder-decoder + visual encoder
-- `ro_vsr/tokenizer.py` — tokenizer Whisper
+- `ro_vsr/models.py` — encoder-decoder + visual encoder architecture
+- `ro_vsr/tokenizer.py` — Whisper-style tokenizer
+- `ro_vsr/checkpoints/multilingual/` — local tokenizer files
 
-Codul nostru original este în:
+Our original code is in:
 
-- `inference.py` — scriptul de inferență
-- `evaluate.py` — evaluare batch pe test set
-- `ro_vsr/beam_search_ngram.py` — beam search cu n-gram blocking
-- `ro_vsr/dataloader_utils.py` — `subsequent_mask` extras
+- `inference.py` — single-clip inference script
+- `evaluate.py` — batch evaluation on a test set
+- `ro_vsr/beam_search_ngram.py` — beam search with n-gram blocking
+- `ro_vsr/dataloader_utils.py` — extracted `subsequent_mask` utility
 
 ```bibtex
 @inproceedings{prajwal2025multivsr,
@@ -35,10 +36,10 @@ Codul nostru original este în:
 [VGG Oxford VTP for lip-reading](https://www.robots.ox.ac.uk/~vgg/research/vtp-for-lip-reading/) —
 Prajwal et al.
 
-Folosim checkpoint-ul `feature_extractor.pth` antrenat pe extended train data,
-descărcat de `scripts/download_checkpoints.sh`.
+We use the `feature_extractor.pth` checkpoint trained on the extended
+training data, downloaded by `scripts/setup.sh`.
 
 ## Whisper tokenizer
 
-[OpenAI Whisper](https://github.com/openai/whisper) — folosit indirect prin
-`tokenizer.py` din MultiVSR.
+[OpenAI Whisper](https://github.com/openai/whisper) — used indirectly
+through the `tokenizer.py` from MultiVSR.

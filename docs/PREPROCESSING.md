@@ -1,46 +1,47 @@
-# Preprocesarea video brut
+# Preprocessing raw video
 
-`inference.py` așteaptă input deja preprocesat: clipuri `.avi` la rezoluția
-**160x160** cu fața deja croppată și centrată pe gură. Acest format este
-identic cu cel folosit de [MultiVSR](https://github.com/Sindhu-Hegde/multivsr).
+`inference.py` expects already-preprocessed input: `.avi` clips at
+**160x160** resolution with the face cropped and centered on the mouth.
+This format is identical to the one used by
+[MultiVSR](https://github.com/Sindhu-Hegde/multivsr).
 
-Pentru video brut (de exemplu, un clip YouTube, sau o filmare proprie),
-trebuie întâi extrasă regiunea gurii. Recomandăm pipeline-ul MultiVSR
-(adaptat din [SyncNet](https://github.com/joonson/syncnet_python)).
+For raw video (a YouTube clip, a personal recording, etc.), the mouth
+region must first be extracted. We recommend the MultiVSR preprocessing
+pipeline (adapted from [SyncNet](https://github.com/joonson/syncnet_python)).
 
-## Pași
+## Steps
 
 ```bash
-# 1. Clonează MultiVSR
+# 1. Clone MultiVSR
 git clone https://github.com/Sindhu-Hegde/multivsr.git
 cd multivsr
 
-# 2. Instalează dependențe (separat de mediul nostru)
+# 2. Install dependencies (in a separate environment from ours)
 pip install -r requirements.txt
 
-# 3. Rulează preprocesarea
+# 3. Run preprocessing
 cd preprocess
 python run_pipeline.py \
-    --videofile /cale/catre/video.mp4 \
+    --videofile /path/to/video.mp4 \
     --reference my_clip \
     --data_dir /tmp/processed
 ```
 
-Output-ul (clipuri 160x160) ajunge în `/tmp/processed/my_clip/pycrop/*.avi`.
+The output (160x160 clips) lands in `/tmp/processed/my_clip/pycrop/*.avi`.
 
-## Apoi rulează inferența
+## Then run inference
 
 ```bash
-cd /cale/catre/ro-vsr
+cd /path/to/ro-vsr
 python inference.py --fpath /tmp/processed/my_clip/pycrop/00000.avi
 ```
 
-## Limitări
+## Limitations
 
-- Pipeline-ul MultiVSR detectează automat fețe; dacă videoclipul are mai
-  mulți vorbitori, va produce un clip per persoană (face track).
-- Clipurile prea scurte (<1s) sau cu ocluziune pe gură vor da rezultate
-  slabe.
-- Modelul a fost antrenat pe **podcast-uri în limba română** cu o singură
-  persoană în cadru — performanța pe alte tipuri de conținut (filme,
-  conferințe, conținut multilingual) nu a fost evaluată.
+- The MultiVSR pipeline auto-detects faces; if the video has multiple
+  speakers, it produces one clip per person (face track).
+- Very short clips (<1s) or clips with mouth occlusion will give poor
+  results.
+- Our model was trained on **Romanian podcasts** with a single speaker
+  in frame — performance on other content types (movies, conferences,
+  multilingual content) has not been evaluated.

@@ -1,21 +1,22 @@
 """
-Evaluare batch pe un test set întreg.
+Batch evaluation on a full test set.
 
-Diferit de inference.py (care rulează pe un singur clip), acest script:
-  - Citește un CSV cu coloanele `file_path` și `transcript`
-  - Rulează inferență pe toate clipurile
-  - Calculează WER și CER global
-  - Salvează predicțiile per clip într-un CSV de output
+Unlike inference.py (which runs on a single clip), this script:
+  - Reads a CSV with columns `file_path` and `transcript`
+  - Runs inference on all clips
+  - Computes global WER and CER
+  - Saves per-clip predictions to an output CSV
 
-Exemplu de utilizare:
+Example usage:
     python evaluate.py \
         --test_csv data/test_seen.csv \
         --data_dir data/ \
-        --model iulik-pisik/ro_vsr_125h_auto \
+        --model iulik-pisik/ro_vsr_175h_auto \
         --output predictions/test_seen.csv
 
-Așteaptă structura: `<data_dir>/<podcast>/<file_path>.avi` unde `<podcast>`
-se deduce din `file_path` (primele 2 părți după split pe `_`).
+Expects the directory structure: `<data_dir>/<podcast>/<file_path>.avi`
+where `<podcast>` is inferred from `file_path` (the first 2 underscore-
+separated segments).
 """
 
 import argparse
@@ -46,7 +47,7 @@ def fname_to_avi_path(data_dir: str, fname: str) -> str:
 
 
 def load_video(avi_path: str, device: torch.device):
-    """Încarcă un .avi și returnează tensor [1, 3, T, 96, 96]."""
+    """Load an .avi clip and return a tensor of shape [1, 3, T, 96, 96]."""
     import numpy as np
     from decord import VideoReader, bridge
     bridge.set_bridge("native")
@@ -65,6 +66,7 @@ def load_video(avi_path: str, device: torch.device):
 
 
 def compute_global_wer_cer(refs, hyps):
+    """Compute corpus-level WER and CER (not per-sentence average)."""
     pairs = [(r, h) for r, h in zip(refs, hyps) if r.strip()]
     if not pairs:
         return 1.0, 1.0
@@ -74,20 +76,20 @@ def compute_global_wer_cer(refs, hyps):
 
 def main():
     parser = argparse.ArgumentParser(
-        description="Evaluare batch pe un test set",
+        description="Batch evaluation on a test set",
         formatter_class=argparse.ArgumentDefaultsHelpFormatter,
     )
     parser.add_argument("--test_csv", type=str, required=True,
-                        help="CSV cu coloanele file_path, transcript")
+                        help="CSV file with columns: file_path, transcript")
     parser.add_argument("--data_dir", type=str, required=True,
-                        help="Folder care conține <podcast>/<file>.avi")
+                        help="Folder containing <podcast>/<file>.avi")
     parser.add_argument("--model", type=str, default=DEFAULT_MODEL)
     parser.add_argument("--vtp_path", type=str, default=DEFAULT_VTP_PATH)
     parser.add_argument("--output", type=str, default="predictions.csv")
     parser.add_argument("--beam_size", type=int, default=5)
     parser.add_argument("--max_len", type=int, default=256)
     parser.add_argument("--no_repeat_ngram_size", type=int, default=5,
-                        help="Dimensiunea n-gram-ului blocat (0 = dezactivat)")
+                        help="Block n-grams of this size from repeating (0 = disabled)")
     parser.add_argument("--device", type=str, default=None)
     args = parser.parse_args()
 
@@ -97,13 +99,13 @@ def main():
     )
 
     df = pd.read_csv(args.test_csv).dropna(subset=["transcript"])
-    print(f"[eval] {len(df)} clipuri în {args.test_csv}")
+    print(f"[eval] {len(df)} clips in {args.test_csv}")
 
     tokenizer = get_tokenizer()
     model, visual_encoder = load_models(args.model, args.vtp_path, device)
 
     results = []
-    for _, row in tqdm(df.iterrows(), total=len(df), desc="Inferență"):
+    for _, row in tqdm(df.iterrows(), total=len(df), desc="Inference"):
         fname = str(row["file_path"])
         avi_path = fname_to_avi_path(args.data_dir, fname)
         if not os.path.isfile(avi_path):
@@ -118,7 +120,7 @@ def main():
                 no_repeat_ngram_size=args.no_repeat_ngram_size,
             )
         except Exception as e:
-            print(f"[eval] ⚠️  Eroare {fname}: {e}")
+            print(f"[eval] ⚠️  Error on {fname}: {e}")
             hyp_raw = ""
 
         ref_clean = normalize_text(str(row["transcript"]))
@@ -140,14 +142,14 @@ def main():
 
     df_out = pd.DataFrame(results)
     df_out.to_csv(args.output, index=False)
-    print(f"[eval] ✅ Predicții salvate: {args.output}")
+    print(f"[eval] ✅ Predictions saved: {args.output}")
 
     global_wer, global_cer = compute_global_wer_cer(
         df_out["reference"].tolist(), df_out["hypothesis"].tolist()
     )
-    print(f"[eval] WER global: {global_wer:.4f}")
-    print(f"[eval] CER global: {global_cer:.4f}")
-    print(f"[eval] Clipuri:    {len(df_out)}")
+    print(f"[eval] Global WER: {global_wer:.4f}")
+    print(f"[eval] Global CER: {global_cer:.4f}")
+    print(f"[eval] Clips:      {len(df_out)}")
 
 
 if __name__ == "__main__":
