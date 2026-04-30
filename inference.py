@@ -30,6 +30,7 @@ sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
 from ro_vsr.models import build_model, build_visual_encoder
 from ro_vsr.tokenizer import get_tokenizer
 from ro_vsr.beam_search_ngram import beam_search_with_rep_penalty
+from ro_vsr.metrics import lookup_reference, print_metrics_block
 
 
 # ============================================================
@@ -38,6 +39,7 @@ from ro_vsr.beam_search_ngram import beam_search_with_rep_penalty
 
 DEFAULT_MODEL = "iulik-pisik/ro_vsr_175h_auto"
 DEFAULT_VTP_PATH = "checkpoints/feature_extractor.pth"
+DEFAULT_METADATA = "samples/samples_metadata.csv"
 
 
 # ============================================================
@@ -236,6 +238,10 @@ def main():
         help="Block n-grams of this size from repeating (0 = disabled)",
     )
     parser.add_argument(
+        "--metadata", type=str, default=DEFAULT_METADATA,
+        help="Path to metadata CSV (used to look up reference and compute WER/CER if available)",
+    )
+    parser.add_argument(
         "--device", type=str, default=None,
         help="Explicit device (cuda / cpu). Default: auto-detect.",
     )
@@ -272,6 +278,8 @@ def main():
     print("─" * 70)
     print(f"File:           {args.fpath}")
     print(f"Transcription:  {transcription}")
+    reference = lookup_reference(args.metadata, args.fpath)
+    print_metrics_block(reference, transcription, normalize_text)
     print("─" * 70)
 
 

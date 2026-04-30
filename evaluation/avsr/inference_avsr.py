@@ -47,8 +47,8 @@ from beam_search_fusion import beam_search_fusion
 # DEFAULTS
 # ============================================================
 
-DEFAULT_VSR_MODEL = "iulik-pisik/ro_vsr_150h_auto"
-DEFAULT_WHISPER_MODEL = "iulik-pisik/whisper-small-ro-noisy"
+DEFAULT_VSR_MODEL = "iulik-pisik/ro_vsr_175h_auto"
+DEFAULT_WHISPER_MODEL = "alexandradiaconu/whisper-small-ro-noisy"
 DEFAULT_VTP_PATH = os.path.join(REPO_ROOT, "checkpoints/feature_extractor.pth")
 
 
