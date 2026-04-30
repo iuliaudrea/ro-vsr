@@ -9,11 +9,6 @@ transcriptions and word-level alignments. Prior work (2020–2025) addressed
 only isolated word classification on the LRRo dataset; we provide the
 first sentence-level baseline for Romanian.
 
-
-<p align="center">
-    <img src="samples/vrso_dataset.gif"/>
-</p>
-
 This repository contains:
 
 - The inference code and pre-trained encoder-decoder models
@@ -23,6 +18,10 @@ This repository contains:
 
 The training pipeline and the full dataset are described in the paper
 and released separately on the HuggingFace Hub.
+
+## News
+
+- **[2026.04]** 🚀 Inference code and models released
 
 ## Installation
 
@@ -159,13 +158,13 @@ statistics.
 The paper additionally reports results on:
 
 - **Audio-Visual Speech Recognition (AVSR)**: noise-robust evaluation
-  combining VSRo-200 with audio fused via cross-modal attention.
-- **Word-level classification on LRRo**: evaluation of our encoder
-  representations on the LRRo benchmark (Țucă et al., 2020).
-
-The code for these experiments will be released in `evaluation/` in a
-follow-up update. The LRRo dataset must be obtained directly from its
-authors and is not redistributed here.
+  via shallow fusion between our VSRo model and a fine-tuned Whisper
+  model. See [`evaluation/avsr/`](evaluation/avsr/) for code, demo
+  clips, and results.
+- **Word-level classification on LRRo**: evaluation on the LRRo
+  benchmark (Țucă et al., 2020). The LRRo dataset must be obtained
+  directly from its authors and is not redistributed here. Code coming
+  soon in `evaluation/lrro/`.
 
 ## Citation
 

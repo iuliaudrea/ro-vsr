@@ -1,7 +1,7 @@
 # Core PyTorch
 torch>=2.0.0
 torchvision>=0.15.0
-torchaudio>=2.0.0
+torchaudio>=2.0.0       # also used for AVSR audio loading (evaluation/avsr/)
 numpy>=1.24.0
 
 # Video reading (decord2 = maintained fork of decord)

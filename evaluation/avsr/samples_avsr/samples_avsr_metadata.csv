@@ -1,0 +1,6 @@
+file_path,reference,noise_type,snr_db,duration_s,notes
+samples_avsr/sample_1_babble_SNR-5.mp4,"REPLACE_WITH_REFERENCE",babble,-5,4.0,"Heavy babble noise; primary use case for shallow fusion"
+samples_avsr/sample_2_babble_SNR0.mp4,"REPLACE_WITH_REFERENCE",babble,0,4.0,"Moderate babble noise"
+samples_avsr/sample_3_babble_SNR10.mp4,"REPLACE_WITH_REFERENCE",babble,10,4.0,"Light babble noise"
+samples_avsr/sample_4_gaussian_SNR-5.mp4,"REPLACE_WITH_REFERENCE",gaussian,-5,4.0,"Heavy white noise"
+samples_avsr/sample_5_gaussian_SNR5.mp4,"REPLACE_WITH_REFERENCE",gaussian,5,4.0,"Moderate white noise"
