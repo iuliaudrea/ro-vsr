@@ -75,10 +75,15 @@ def print_metrics_block(reference: Optional[str], hypothesis: str, normalize_fn)
     """
     if reference is None:
         return
+    print(f"Reference:      {reference}")
     ref_norm = normalize_fn(reference)
     hyp_norm = normalize_fn(hypothesis)
+    try:
+        import jiwer
+    except ImportError:
+        print("WER/CER:        (install `jiwer` to compute metrics: pip install jiwer)")
+        return
     wer, cer = compute_wer_cer(ref_norm, hyp_norm)
-    print(f"Reference:      {reference}")
     if wer is not None:
         print(f"WER:            {wer * 100:.2f}%")
         print(f"CER:            {cer * 100:.2f}%")

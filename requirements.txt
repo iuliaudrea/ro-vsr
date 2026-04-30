@@ -22,7 +22,5 @@ einops>=0.7.0
 
 # Utilities
 tqdm>=4.65.0
-
-# (Optional) only needed for evaluate.py
-jiwer>=3.0.0
-pandas>=2.0.0
+jiwer>=3.0.0           # for WER/CER metrics (used by inference.py and inference_avsr.py)
+pandas>=2.0.0          # for reading metadata CSVs
