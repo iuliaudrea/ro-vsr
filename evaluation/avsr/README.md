@@ -66,8 +66,7 @@ A drop of 42 absolute WER points over Whisper alone, on a clip with
 The `--mode` flag selects how predictions are produced:
 
 - **`hibrid_logp`** (default): shallow fusion at the log-probability
-  level — averages `log_softmax(audio_logits)` and `log_softmax(video_logits)`
-  at each decoding step. **This is the main reported method.**
+  level at each decoding step. **This is the main reported method.**
 - **`whisper`**: audio-only baseline (Whisper alone).
 - **`multivsr`**: video-only baseline (our VSR model alone).
 
@@ -98,6 +97,8 @@ Babble noise is sampled from [MUSAN](https://www.openslr.org/17/),
 mixed from 4 randomly selected speakers. Full reference transcriptions
 are in [`samples_avsr/samples_avsr_metadata.csv`](samples_avsr/samples_avsr_metadata.csv).
 
+
+<!-- 
 ## Reported results
 
 WER (lower is better) on the `test_valid` split (100 clips), averaged
@@ -115,6 +116,9 @@ ZS = zero-shot Whisper (`alexandradiaconu/whisper-small-echo-34`).
 FT = fine-tuned on VSRo + noise (our `iulik-pisik/whisper-small-ro-noisy`,
 adapted from [Diaconu et al., 2026](https://arxiv.org/abs/2603.02368)).
 
+ -->
+
+
 ## CLI options
 
 ```
@@ -128,7 +132,7 @@ adapted from [Diaconu et al., 2026](https://arxiv.org/abs/2603.02368)).
 --device         cuda | cpu (default: auto-detect)
 ```
 
-## Running on your own clips
+<!-- ## Running on your own clips
 
 To test on your own noisy clips:
 
@@ -145,7 +149,7 @@ To test on your own noisy clips:
 4. Run inference:
    ```bash
    python inference_avsr.py --fpath your_clip_with_noise.mp4
-   ```
+   ``` -->
 
 ## Citation
 
