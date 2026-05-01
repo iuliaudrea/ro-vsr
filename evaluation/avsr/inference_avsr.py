@@ -39,6 +39,7 @@ sys.path.insert(0, REPO_ROOT)
 
 from ro_vsr.models import build_model, build_visual_encoder
 from ro_vsr.tokenizer import get_tokenizer
+from ro_vsr.metrics import lookup_reference, print_metrics_block
 
 from beam_search_fusion import beam_search_fusion
 
@@ -47,9 +48,12 @@ from beam_search_fusion import beam_search_fusion
 # DEFAULTS
 # ============================================================
 
-DEFAULT_VSR_MODEL = "iulik-pisik/ro_vsr_150h_auto"
-DEFAULT_WHISPER_MODEL = "iulik-pisik/whisper-small-ro-noisy"
+DEFAULT_VSR_MODEL = "iulik-pisik/ro_vsr_175h_auto"
+DEFAULT_WHISPER_MODEL = "alexandradiaconu/whisper-small-ro-noisy"
 DEFAULT_VTP_PATH = os.path.join(REPO_ROOT, "checkpoints/feature_extractor.pth")
+DEFAULT_METADATA = os.path.join(
+    os.path.dirname(__file__), "samples_avsr", "samples_avsr_metadata.csv"
+)
 
 
 # ============================================================
@@ -238,6 +242,8 @@ def main():
                         help="Decoding mode: shallow fusion, audio-only, or video-only")
     parser.add_argument("--beam_size", type=int, default=5)
     parser.add_argument("--max_len", type=int, default=256)
+    parser.add_argument("--metadata", type=str, default=DEFAULT_METADATA,
+                        help="Path to metadata CSV (used to look up reference and compute WER/CER if available)")
     parser.add_argument("--device", type=str, default=None,
                         help="Explicit device (cuda / cpu). Default: auto.")
     args = parser.parse_args()
@@ -280,6 +286,8 @@ def main():
     print(f"File:           {args.fpath}")
     print(f"Mode:           {args.mode}")
     print(f"Transcription:  {transcription}")
+    reference = lookup_reference(args.metadata, args.fpath)
+    print_metrics_block(reference, transcription, normalize_text)
     print("─" * 70)
 
 
