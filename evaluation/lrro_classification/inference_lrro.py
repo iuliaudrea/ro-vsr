@@ -31,6 +31,7 @@ import json
 import os
 import sys
 import warnings
+from typing import Optional
 
 # Suppress autocast warnings on CPU
 warnings.filterwarnings("ignore", message=".*CUDA is not available.*")
@@ -81,18 +82,85 @@ LRRO_LAB_WORDS = sorted([
 LRRO_WILD_WORDS = sorted([])
 
 
-def resolve_class_names(num_classes: int, split: str):
+def auto_detect_class_map(clip_dir: str, split: str) -> Optional[list]:
     """
-    Returns class names for a given split. The number of classes serves
-    as a sanity check vs the loaded MLP's output dimension.
+    Try to detect the class-to-index mapping from the LRRo dataset
+    structure, given a clip path.
 
-    LRRo class lists are not redistributed in this repo; instead, we
-    return generic 'class_<i>' labels and rely on the user to obtain
-    the dataset (and therefore the word→index mapping) from the
-    official source. If a mapping file is found in the same folder as
-    the clip, we use it.
+    Expected LRRo layout:
+        <lrro_root>/<DatasetName>/(train|val|test)/<word>/<clip_id>/*.jpg
+
+    where <DatasetName> is 'Lab_LRRo_data_set' or 'Wild_LRRo_data_set'.
+
+    Returns the alphabetically sorted list of word folders found in
+    `train/` (matches the `sorted(...)` ordering used during training).
+    Returns None if the structure does not match.
     """
-    return [f"class_{i}" for i in range(num_classes)]
+    # Walk up: clip_id -> word -> split (train/val/test) -> dataset
+    # clip_dir might end with a trailing slash, normalize first
+    clip_dir = os.path.normpath(clip_dir)
+    parts = clip_dir.split(os.sep)
+    if len(parts) < 4:
+        return None
+
+    # The dataset folder is the one whose name contains 'LRRo_data_set'
+    dataset_idx = None
+    for i, p in enumerate(parts):
+        if "LRRo_data_set" in p and (
+            ("Lab" in p and split == "lab") or ("Wild" in p and split == "wild")
+        ):
+            dataset_idx = i
+            break
+    if dataset_idx is None:
+        return None
+
+    dataset_dir = os.sep.join(parts[: dataset_idx + 1])
+    train_dir = os.path.join(dataset_dir, "train")
+    if not os.path.isdir(train_dir):
+        return None
+
+    words = sorted(
+        d for d in os.listdir(train_dir)
+        if os.path.isdir(os.path.join(train_dir, d))
+    )
+    return words if words else None
+
+
+def resolve_class_names(num_classes: int, split: str, clip_dir: str = None,
+                       class_map_file: str = None) -> tuple:
+    """
+    Returns (class_names, source_description).
+
+    Resolution order:
+      1. --class_map JSON file if provided
+      2. Auto-detect from LRRo folder structure (if clip_dir is in an LRRo tree)
+      3. Fall back to generic 'class_<i>' labels
+
+    The number of classes from the MLP is used to validate the resolved
+    list — if it doesn't match, we fall back to generic labels.
+    """
+    # 1. Explicit mapping file
+    if class_map_file and os.path.isfile(class_map_file):
+        with open(class_map_file) as f:
+            mapping = json.load(f)
+        if all(str(k).isdigit() for k in mapping.keys()):
+            names = [mapping[str(i)] for i in range(num_classes)]
+        else:
+            names = sorted(mapping.keys(), key=lambda w: mapping[w])
+        if len(names) == num_classes:
+            return names, f"loaded from {class_map_file}"
+
+    # 2. Auto-detect from LRRo folder structure
+    if clip_dir is not None:
+        names = auto_detect_class_map(clip_dir, split)
+        if names and len(names) == num_classes:
+            return names, "auto-detected from LRRo folder structure"
+        elif names:
+            print(f"[warn] auto-detected {len(names)} classes from folder "
+                  f"structure but MLP has {num_classes} — falling back")
+
+    # 3. Generic labels
+    return [f"class_{i}" for i in range(num_classes)], None
 
 
 # ============================================================
@@ -267,18 +335,23 @@ def main():
 
     classifier, num_classes = load_mlp(args.strategy, args.split, emb_dim, device)
 
-    # Load class map (or fall back to generic class_<i> labels)
-    class_names = None
-    if args.class_map and os.path.isfile(args.class_map):
-        with open(args.class_map) as f:
-            mapping = json.load(f)
-        # mapping might be {idx: word} or {word: idx} — handle both
-        if all(str(k).isdigit() for k in mapping.keys()):
-            class_names = [mapping[str(i)] for i in range(num_classes)]
-        else:
-            class_names = sorted(mapping.keys(), key=lambda w: mapping[w])
-    else:
-        class_names = resolve_class_names(num_classes, args.split)
+    # Sanity check: warn if clip_dir is in the wrong dataset folder
+    if "Lab_LRRo" in args.clip_dir and args.split != "lab":
+        print(f"[warn] Clip is in Lab_LRRo_data_set but --split={args.split}. "
+              f"Did you mean --split lab?")
+    elif "Wild_LRRo" in args.clip_dir and args.split != "wild":
+        print(f"[warn] Clip is in Wild_LRRo_data_set but --split={args.split}. "
+              f"Did you mean --split wild?")
+
+    # Resolve class names (explicit map → auto-detect → generic fallback)
+    class_names, source = resolve_class_names(
+        num_classes=num_classes,
+        split=args.split,
+        clip_dir=args.clip_dir,
+        class_map_file=args.class_map,
+    )
+    if source:
+        print(f"[load] Class names {source}")
 
     # Run inference
     print("[infer] Running inference ...")
@@ -297,20 +370,32 @@ def main():
     print(f"Clip:            {args.clip_dir}")
     print(f"Strategy:        {args.strategy}")
     print(f"MLP split:       {args.split}  ({num_classes} classes)")
+
+    # If clip is in a folder named after its true word, show that
+    true_word = None
+    parts = os.path.normpath(args.clip_dir).split(os.sep)
+    if len(parts) >= 2:
+        candidate = parts[-2]  # parent folder name
+        if candidate in class_names:
+            true_word = candidate
+            print(f"True label:      {true_word}")
+
     print(f"Top-{args.top_k} predictions:")
     for rank, (idx, prob) in enumerate(predictions, start=1):
         word = class_names[idx]
+        marker = "  ←" if word == true_word else ""
         bar_len = int(prob * 30)
         bar = "█" * bar_len + "░" * (30 - bar_len)
-        print(f"  {rank}. {word:<20s} {bar} {prob*100:5.2f}%")
+        print(f"  {rank}. {word:<20s} {bar} {prob*100:5.2f}%{marker}")
     print("─" * 70)
 
     if class_names == [f"class_{i}" for i in range(num_classes)]:
         print()
-        print("ℹ️  Predictions shown as 'class_<i>' because no class map was provided.")
-        print("   To see actual word labels, pass --class_map mapping.json where the")
-        print("   JSON maps class indices (0..N-1) to LRRo word labels.")
-        print("   See README.md for how to build this mapping from your LRRo download.")
+        print("ℹ️  Predictions shown as 'class_<i>'.")
+        print("   To see word labels, either:")
+        print("     - run from a clip inside the LRRo dataset structure "
+              "(auto-detection), or")
+        print("     - pass --class_map mapping.json (see README for the format)")
 
 
 if __name__ == "__main__":
