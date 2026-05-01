@@ -162,9 +162,12 @@ The paper additionally reports results on:
   model. See [`evaluation/avsr/`](evaluation/avsr/) for code, demo
   clips, and results.
 - **Word-level classification on LRRo**: evaluation on the LRRo
-  benchmark (Țucă et al., 2020). The LRRo dataset must be obtained
-  directly from its authors and is not redistributed here. Code coming
-  soon in `evaluation/lrro/`.
+  benchmark (Jitaru et al., 2020) using our pre-trained encoder
+  representations with a lightweight attention-pooling + MLP head.
+  See [`evaluation/lrro_classification/`](evaluation/lrro_classification/)
+  for code and pre-trained classifiers. The LRRo dataset must be
+  obtained directly from the [official source](https://bionescu.aimultimedialab.ro/LRRo.html);
+  it is not redistributed here.
 
 ## Citation
 
