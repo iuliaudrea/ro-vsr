@@ -1,9 +1,5 @@
 # Word-level classification on LRRo
 
-This folder contains the LRRo evaluation reported in our paper:
-**Word-level lipreading on the LRRo benchmark using our pre-trained
-encoder representations.**
-
 We freeze the VTP visual encoder and our VSR transformer encoder
 ([MultiVSR](https://github.com/Sindhu-Hegde/multivsr) architecture
 trained on the VSRo-200 dataset) and train a lightweight
@@ -11,25 +7,14 @@ attention-pooling + MLP head on LRRo. This evaluates the cross-domain
 transferability of our encoder representations to a standard Romanian
 lip-reading benchmark.
 
-## ⚠️ LRRo dataset is not redistributed
+### ⚠️ LRRo dataset is not redistributed
 
 LRRo (Jitaru et al., 2020) must be obtained directly from the official
 source. We provide only the **inference code** and the **trained MLP
 heads**; the dataset itself remains the property of its authors
 (Jitaru, Abdulamit, and Ionescu — University Politehnica of Bucharest).
 
-If you use this evaluation, please also cite the original LRRo paper:
-
-```bibtex
-@inproceedings{jitaru2020lrro,
-    author    = "Jitaru, Andrei Cosmin and Abdulamit, Șeila and Ionescu, Bogdan",
-    title     = "{LRRo}: A Lip Reading Data Set for the Under-resourced Romanian Language",
-    booktitle = "Proceedings of the 11th ACM Multimedia Systems Conference",
-    pages     = "267-272",
-    year      = "2020",
-}
-```
-
+<!-- 
 ## Download LRRo
 
 The dataset is hosted on Zenodo. The download is a RAR archive even
@@ -78,12 +63,12 @@ Pick any clip from the test set to verify everything is in place:
 ```bash
 ls "/path/to/lrro/LRRo data set/Wild_LRRo_data_set/test/" | head
 ls "/path/to/lrro/LRRo data set/Wild_LRRo_data_set/test/problema/" | head -3
-```
+``` -->
 
 ## Running inference
 
 After setting up the main repository (`bash scripts/setup.sh` from the
-repo root) and downloading LRRo as above:
+repo root) and downloading [LRRo](https://zenodo.org/records/3753559/files/LRRo_data_set.tar.gz):
 
 ```bash
 cd evaluation/lrro_classification
@@ -115,17 +100,11 @@ Top-5 predictions:
 ```
 
 Class names are **auto-detected** from the LRRo folder structure when
-the clip path is inside an LRRo dataset tree — no manual mapping
-needed.
+the clip path is inside an LRRo dataset tree.
 
 ## Configuration
 
-The VTP visual encoder and the VSR encoder are **fixed**:
-
-- **VTP**: original feature extractor from VGG Oxford
-- **VSR encoder**: `iulik-pisik/ro_vsr_150h_auto`
-
-The **preprocessing strategy** and the **MLP head split** are
+The VTP visual encoder and the VSR encoder are **fixed**. The **preprocessing strategy** and the **MLP head split** are
 configurable. We trained MLPs on four different preprocessing
 strategies, each with separate heads for the LAB and WILD splits.
 
@@ -135,12 +114,12 @@ LRRo provides 64x64 grayscale mouth crops. Our VTP encoder expects
 96x96 RGB face-like inputs. We tested four strategies for adapting
 LRRo frames to this input format:
 
-| Strategy | Description | Notes |
-| --- | --- | --- |
-| `48_bottom` (default) | Resize to 48x48, place center-bottom on 96x96 gray canvas | Best result; mimics where a real mouth would appear in a face crop |
-| `64_bottom` | Keep 64x64, place center-bottom on 96x96 gray canvas | No information loss from resizing |
-| `64_middle` | Keep 64x64, place exactly center on 96x96 gray canvas | Centered placement |
-| `96_resize` | Resize directly to 96x96 (no padding) | Frame fills the entire canvas |
+| Strategy | Description |
+| --- | --- |
+| `96_resize` | Resize directly to 96x96 |
+| `64_middle` | Keep 64x64, place exactly center on 96x96 gray canvas |
+| `64_bottom` | Keep 64x64, place center-bottom on 96x96 gray canvas |
+| `48_bottom` (default) | Resize to 48x48, place center-bottom on 96x96 gray canvas |
 
 ### CLI options
 
@@ -179,27 +158,14 @@ Results from the paper, on the LRRo official `test` split:
 | Method | Lab Top-1 | Lab Top-5 | Wild Top-1 | Wild Top-5 |
 | --- | --- | --- | --- | --- |
 | LRRo baseline (VGG-M, Inception-V4) | 71.0% | 92.0% | 33.0% | 62.0% |
-| **Ours** (VSR encoder + Attn+MLP, 48_bottom) | **XX.X%** | **XX.X%** | **XX.X%** | **XX.X%** |
+| **Ours** (VSR encoder + Attn+MLP, 48_bottom) | **94.2%** | **99.4%** | **74.4%** | **90.9%** |
 
-(Replace placeholders with your actual numbers.)
 
 The LRRo baseline is trained from scratch on LRRo data only. Our
 approach reuses an encoder trained on a much larger sentence-level
 podcast dataset (VSRo-200) and only learns a lightweight head on
 LRRo, demonstrating effective cross-domain transfer.
 
-## Architecture
-
-**Encoder pipeline (frozen):**
-- VTP visual encoder → token embeddings per frame
-- VSR transformer encoder → contextualized sequence embeddings
-
-**Classification head (trainable, ~700k parameters):**
-- Attention pooling over the temporal dimension
-- Linear → BatchNorm → ReLU → Dropout(0.6) → Linear (num_classes)
-
-The attention pooling computes per-frame importance scores and produces
-a fixed-size representation per clip, regardless of clip length.
 
 ## Pre-trained MLPs
 
@@ -215,3 +181,17 @@ ro_vsr_classification_mlps/
 ```
 
 The MLPs are downloaded automatically when running `inference_lrro.py`.
+
+## Citation
+
+If you use this setup, please also cite the original LRRo paper:
+
+```bibtex
+@inproceedings{jitaru2020lrro,
+    author    = "Jitaru, Andrei Cosmin and Abdulamit, Șeila and Ionescu, Bogdan",
+    title     = "{LRRo}: A Lip Reading Data Set for the Under-resourced Romanian Language",
+    booktitle = "Proceedings of the 11th ACM Multimedia Systems Conference",
+    pages     = "267-272",
+    year      = "2020",
+}
+```
