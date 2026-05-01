@@ -13,14 +13,11 @@ lip-reading benchmark.
 ## ⚠️ LRRo dataset is not redistributed
 
 LRRo (Jitaru et al., 2020) must be obtained directly from the official
-source: **https://bionescu.aimultimedialab.ro/LRRo.html**
+source. We provide only the **inference code** and the **trained MLP
+heads**; the dataset itself remains the property of its authors
+(Jitaru, Abdulamit, and Ionescu — University Politehnica of Bucharest).
 
-We provide only the **inference code** and the **trained MLP heads**.
-The dataset itself remains the property of its authors (Jitaru,
-Abdulamit, and Ionescu — University Politehnica of Bucharest).
-
-If you cite our LRRo evaluation, please also cite the original LRRo
-paper:
+If you use this evaluation, please also cite the original LRRo paper:
 
 ```bibtex
 @inproceedings{jitaru2020lrro,
@@ -32,11 +29,34 @@ paper:
 }
 ```
 
-## Quick start
+## Download LRRo
 
-After setting up the main repository (`bash scripts/setup.sh` from the
-repo root), download LRRo from the official source. The expected
-folder structure is:
+The dataset is hosted on Zenodo. The download is a RAR archive even
+though it has a `.tar.gz` extension, so we use `unrar` to extract.
+
+```bash
+# 1. Install unrar (Ubuntu/Debian/Colab)
+sudo apt-get install -y unrar
+
+# 2. Download the main archive (~XGB)
+mkdir -p /path/to/lrro
+curl -L -o /tmp/lrro_main.tar.gz \
+    "https://zenodo.org/records/3753559/files/LRRo_data_set.tar.gz"
+
+# 3. Extract the main archive
+unrar x -o+ /tmp/lrro_main.tar.gz /path/to/lrro/
+
+# 4. Extract the two sub-archives (Lab and Wild)
+for sub in /path/to/lrro/"LRRo data set"/*.tar.gz; do
+    unrar x -o+ "$sub" "$(dirname "$sub")/"
+done
+
+# 5. Verify the structure
+ls "/path/to/lrro/LRRo data set/Lab_LRRo_data_set/test/"
+# Should list folders: ace, agresivitate, anumiti, anume, ...
+```
+
+After extraction, the structure is:
 
 ```
 /path/to/lrro/LRRo data set/
@@ -50,11 +70,25 @@ folder structure is:
     └── test/...
 ```
 
-Then run inference on any clip:
+### Quick download check
+
+Pick any clip from the test set to verify everything is in place:
+
+```bash
+ls "/path/to/lrro/LRRo data set/Wild_LRRo_data_set/test/" | head
+ls "/path/to/lrro/LRRo data set/Wild_LRRo_data_set/test/problema/" | head -3
+```
+
+## Running inference
+
+After setting up the main repository (`bash scripts/setup.sh` from the
+repo root) and downloading LRRo as above:
 
 ```bash
 cd evaluation/lrro_classification
-python inference_lrro.py --clip_dir /path/to/lrro/Lab_LRRo_data_set/test/buna/12345/
+python inference_lrro.py \
+    --clip_dir "/path/to/lrro/LRRo data set/Wild_LRRo_data_set/test/problema/n171/" \
+    --split wild
 ```
 
 Expected output:
@@ -63,76 +97,42 @@ Expected output:
 [device] cuda
 [load] Loading VTP visual encoder ...
 [load] Downloading VSR encoder from iulik-pisik/ro_vsr_150h_auto
-[load] Encoder embedding dimension: 768
-[load] Downloading MLP from iulik-pisik/ro_vsr_classification_mlps/48_bottom/best_lab_clf.pt
-[load] MLP has 48 output classes
-[video] Frames extracted: (1, 3, 29, 96, 96)
+[load] Downloading MLP from iulik-pisik/ro_vsr_classification_mlps/48_bottom/best_wild_clf.pt
+[load] MLP has 21 output classes
+[load] Class names auto-detected from LRRo folder structure
 [infer] Running inference ...
 ──────────────────────────────────────────────────────────────────────
-Clip:            /path/to/.../buna/12345/
+Clip:            /path/to/lrro/.../problema/n171/
 Strategy:        48_bottom
-MLP split:       lab  (48 classes)
+MLP split:       wild  (21 classes)
+True label:      problema
 Top-5 predictions:
-  1. class_3              ████████████████████████░░░░░░  82.43%
-  2. class_17             ███░░░░░░░░░░░░░░░░░░░░░░░░░░░  10.12%
-  ...
+  1. problema             ████████████████████████████░░  98.43%  ←
+  2. pentru               ░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░   1.12%
+  3. ...
 ──────────────────────────────────────────────────────────────────────
 ```
 
-## Showing actual word labels
-
-By default, predictions are displayed as `class_0`, `class_1`, etc.,
-since we cannot redistribute the LRRo word list. To see actual word
-predictions, build a class-to-index mapping from your LRRo download
-and pass it via `--class_map`:
-
-```python
-# Build the mapping (run this once after downloading LRRo)
-import os, json
-
-lrro_dir = "/path/to/lrro/LRRo data set"
-
-for split_dataset, json_name in [
-    ("Lab_LRRo_data_set", "lab_classes.json"),
-    ("Wild_LRRo_data_set", "wild_classes.json"),
-]:
-    train_dir = os.path.join(lrro_dir, split_dataset, "train")
-    words = sorted(os.listdir(train_dir))
-    mapping = {str(i): w for i, w in enumerate(words)}
-    with open(json_name, "w") as f:
-        json.dump(mapping, f, ensure_ascii=False, indent=2)
-    print(f"Wrote {json_name} with {len(words)} classes")
-```
-
-Then run:
-
-```bash
-python inference_lrro.py \
-    --clip_dir /path/to/lrro/Lab_LRRo_data_set/test/<word>/<clip_id>/ \
-    --class_map lab_classes.json
-```
-
-The mapping reproduces the alphabetical class ordering used during
-training, so it matches the trained MLP exactly.
+Class names are **auto-detected** from the LRRo folder structure when
+the clip path is inside an LRRo dataset tree — no manual mapping
+needed.
 
 ## Configuration
 
 The VTP visual encoder and the VSR encoder are **fixed**:
 
-- **VTP**: original feature extractor from VGG Oxford (downloaded by
-  the main `setup.sh`)
-- **VSR encoder**: `iulik-pisik/ro_vsr_150h_auto` (downloaded
-  automatically at first run)
+- **VTP**: original feature extractor from VGG Oxford
+- **VSR encoder**: `iulik-pisik/ro_vsr_150h_auto`
 
-The **preprocessing strategy** and the **MLP head** are configurable.
-We trained MLPs on four different preprocessing strategies, each with
-a separate head for the LAB and WILD splits of LRRo.
+The **preprocessing strategy** and the **MLP head split** are
+configurable. We trained MLPs on four different preprocessing
+strategies, each with separate heads for the LAB and WILD splits.
 
 ### Preprocessing strategies
 
 LRRo provides 64x64 grayscale mouth crops. Our VTP encoder expects
 96x96 RGB face-like inputs. We tested four strategies for adapting
-LRRo frames:
+LRRo frames to this input format:
 
 | Strategy | Description | Notes |
 | --- | --- | --- |
@@ -150,26 +150,25 @@ LRRo frames:
               - lab: MLP for LRRo Lab subset (48 classes)
               - wild: MLP for LRRo Wild subset (21 classes)
 --top_k      Number of top predictions to display (default: 5)
---class_map  Optional JSON mapping {class_idx: word_label}
+--class_map  Optional JSON {class_idx: word_label} (auto-detected by default)
 --device     cuda | cpu (default: auto-detect)
 ```
+
+Make sure to use `--split lab` for clips from `Lab_LRRo_data_set/`
+and `--split wild` for clips from `Wild_LRRo_data_set/`. The script
+will warn you if there's a mismatch.
 
 ### Examples
 
 ```bash
-# Default: 48_bottom strategy + LAB MLP
-python inference_lrro.py --clip_dir /path/to/clip
-
-# Compare all four strategies on the same clip:
-for s in 48_bottom 64_bottom 64_middle 96_resize; do
-    python inference_lrro.py --clip_dir /path/to/clip --strategy $s
-done
-
-# Wild MLP (21 classes)
+# Default: 48_bottom strategy + LAB MLP, on a Lab clip
 python inference_lrro.py \
-    --clip_dir /path/to/lrro/Wild_LRRo_data_set/test/<word>/<clip_id>/ \
-    --split wild \
-    --class_map wild_classes.json
+    --clip_dir "/path/to/.../Lab_LRRo_data_set/test/buna/00012/"
+
+# Compare all four preprocessing strategies on the same clip:
+for s in 48_bottom 64_bottom 64_middle 96_resize; do
+    python inference_lrro.py --clip_dir "$CLIP" --strategy $s --split wild
+done
 ```
 
 ## Reported results
@@ -183,10 +182,10 @@ Results from the paper, on the LRRo official `test` split:
 
 (Replace placeholders with your actual numbers.)
 
-The baseline model on LRRo is trained from scratch on LRRo data only.
-Our approach reuses an encoder trained on a much larger sentence-level
-podcast dataset (VSRo-200) and only learns a lightweight head on LRRo,
-demonstrating effective cross-domain transfer.
+The LRRo baseline is trained from scratch on LRRo data only. Our
+approach reuses an encoder trained on a much larger sentence-level
+podcast dataset (VSRo-200) and only learns a lightweight head on
+LRRo, demonstrating effective cross-domain transfer.
 
 ## Architecture
 
@@ -208,18 +207,10 @@ All trained MLP heads are available on HuggingFace:
 
 ```
 ro_vsr_classification_mlps/
-├── 48_bottom/
-│   ├── best_lab_clf.pt
-│   └── best_wild_clf.pt
-├── 64_bottom/
-│   ├── best_lab_clf.pt
-│   └── best_wild_clf.pt
-├── 64_middle/
-│   ├── best_lab_clf.pt
-│   └── best_wild_clf.pt
-└── 96_resize/
-    ├── best_lab_clf.pt
-    └── best_wild_clf.pt
+├── 48_bottom/{best_lab_clf.pt, best_wild_clf.pt}
+├── 64_bottom/{best_lab_clf.pt, best_wild_clf.pt}
+├── 64_middle/{best_lab_clf.pt, best_wild_clf.pt}
+└── 96_resize/{best_lab_clf.pt, best_wild_clf.pt}
 ```
 
 The MLPs are downloaded automatically when running `inference_lrro.py`.

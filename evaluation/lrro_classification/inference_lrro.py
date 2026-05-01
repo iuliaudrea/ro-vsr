@@ -331,17 +331,16 @@ def main():
         dummy_mask = torch.ones((B, 1, T), device=device).bool()
         dummy_mem, _ = encoder_model.encode(dummy_emb, dummy_mask)
     emb_dim = dummy_mem.size(-1)
-    print(f"[load] Encoder embedding dimension: {emb_dim}")
 
     classifier, num_classes = load_mlp(args.strategy, args.split, emb_dim, device)
 
-    # Sanity check: warn if clip_dir is in the wrong dataset folder
+    # Detect mismatch between clip dataset and selected split (warning shown
+    # AFTER inference so it's not lost in the download logs)
+    split_mismatch = None
     if "Lab_LRRo" in args.clip_dir and args.split != "lab":
-        print(f"[warn] Clip is in Lab_LRRo_data_set but --split={args.split}. "
-              f"Did you mean --split lab?")
+        split_mismatch = "lab"
     elif "Wild_LRRo" in args.clip_dir and args.split != "wild":
-        print(f"[warn] Clip is in Wild_LRRo_data_set but --split={args.split}. "
-              f"Did you mean --split wild?")
+        split_mismatch = "wild"
 
     # Resolve class names (explicit map → auto-detect → generic fallback)
     class_names, source = resolve_class_names(
@@ -389,13 +388,13 @@ def main():
         print(f"  {rank}. {word:<20s} {bar} {prob*100:5.2f}%{marker}")
     print("─" * 70)
 
-    if class_names == [f"class_{i}" for i in range(num_classes)]:
+    # Surface mismatches at the end where they're easy to spot
+    if split_mismatch is not None:
+        dataset_name = "Lab_LRRo_data_set" if split_mismatch == "lab" else "Wild_LRRo_data_set"
         print()
-        print("ℹ️  Predictions shown as 'class_<i>'.")
-        print("   To see word labels, either:")
-        print("     - run from a clip inside the LRRo dataset structure "
-              "(auto-detection), or")
-        print("     - pass --class_map mapping.json (see README for the format)")
+        print(f"⚠️  WARNING: Clip is in {dataset_name} but you used --split={args.split}.")
+        print(f"   The {args.split} MLP has different vocabulary than the {split_mismatch} MLP.")
+        print(f"   Re-run with --split {split_mismatch} for meaningful predictions.")
 
 
 if __name__ == "__main__":
