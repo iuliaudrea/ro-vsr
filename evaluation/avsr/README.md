@@ -1,4 +1,4 @@
-# Audio-Visual Speech Recognition (AVSR) Evaluation
+# Audio-Visual Speech Recognition (AVSR)
 
 This folder contains the AVSR experiments reported in the paper:
 **Shallow fusion between our VSR model (video) and a fine-tuned Whisper
