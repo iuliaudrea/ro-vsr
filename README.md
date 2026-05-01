@@ -158,9 +158,10 @@ statistics.
 The paper additionally reports results on:
 
 - **Audio-Visual Speech Recognition (AVSR)**: noise-robust evaluation
-  via shallow fusion between our VSRo model and a fine-tuned Whisper
-  model. See [`evaluation/avsr/`](evaluation/avsr/) for code, demo
-  clips, and results.
+  via shallow fusion between our VSR model (MultiVSR architecture
+  trained on VSRo-200) and a fine-tuned Whisper model. See
+  [`evaluation/avsr/`](evaluation/avsr/) for code, demo clips, and
+  results.
 - **Word-level classification on LRRo**: evaluation on the LRRo
   benchmark (Jitaru et al., 2020) using our pre-trained encoder
   representations with a lightweight attention-pooling + MLP head.

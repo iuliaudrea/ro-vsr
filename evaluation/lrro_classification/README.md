@@ -5,7 +5,8 @@ This folder contains the LRRo evaluation reported in our paper:
 encoder representations.**
 
 We freeze the VTP visual encoder and our VSR transformer encoder
-(trained on the VSRo-200 dataset) and train a lightweight
+([MultiVSR](https://github.com/Sindhu-Hegde/multivsr) architecture
+trained on the VSRo-200 dataset) and train a lightweight
 attention-pooling + MLP head on LRRo. This evaluates the cross-domain
 transferability of our encoder representations to a standard Romanian
 lip-reading benchmark.

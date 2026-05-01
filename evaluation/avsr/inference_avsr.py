@@ -1,8 +1,11 @@
 """
 Single-clip AVSR (Audio-Visual Speech Recognition) inference.
 
-Combines our VSRo model (video) with a fine-tuned Whisper model (audio)
+Combines our VSR model (video) with a fine-tuned Whisper model (audio)
 via shallow fusion at the log-probability level.
+
+The VSR model uses the MultiVSR architecture (Prajwal et al., 2025),
+trained on our VSRo-200 dataset.
 
 Example usage:
     python inference_avsr.py --fpath samples_avsr/sample_1_babble_SNR0.mp4
