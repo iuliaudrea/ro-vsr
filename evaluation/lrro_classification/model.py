@@ -26,7 +26,7 @@ class AttentionPooling(nn.Module):
         # x: (B, T, D); mask: (B, 1, T) bool, True = valid frame
         weights = self.attn(x).squeeze(-1)  # (B, T)
         if mask is not None:
-            weights.masked_fill_(~mask.squeeze(1), -1e9)
+            weights.masked_fill_(~mask.squeeze(1), float("-inf"))
         attn_weights = torch.softmax(weights, dim=-1)
         pooled = torch.bmm(attn_weights.unsqueeze(1), x).squeeze(1)  # (B, D)
         return pooled, attn_weights
