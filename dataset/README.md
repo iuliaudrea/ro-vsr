@@ -34,7 +34,7 @@ Available splits:
 | `trainval_annot.csv` | Manually annotated train/val | gender |
 | `trainval_auto.csv` | Auto-transcribed train/val (Whisper-large) | gender |
 | `test_seen.csv` | Test split, speakers seen during training | gender |
-| `test_unseen.csv` | Test split, unseen speakers | gender |
+| `test_unseen.csv` | Test split, unseen speakers (TBD) | gender |
 | `test_ood.csv` | Out-of-domain test (different content type) | domain |
 
 ## Reconstruction workflow
@@ -47,15 +47,15 @@ pip install yt-dlp pandas
 
 You'll also need `ffmpeg` available on your system PATH.
 
-### Step 1 — Download the timestamps CSV(s) from HuggingFace
+### Step 1 — Download the metadata from HuggingFace
 
-Pick whichever splits you need
+Pick whichever splits you need.
 
 ```bash
 pip install -U "huggingface_hub[cli]"
 
 # Download a single split
-huggingface-cli download vsro200/vsro200 test_seen.csv \
+huggingface-cli download vsro200/vsro200 test_unseen.csv \
     --repo-type dataset --local-dir ./
 
 # Or download all CSVs at once
@@ -104,24 +104,44 @@ silently and continue with what's available.
 
 ### Step 4 — Extract face tracks for VSR
 
-Once you have guest-only clips, feed them to MultiVSR's pipeline to
-produce the 224×224 .avi face crops used by our inference scripts:
+The clips from Step 3 still contain the full frame (with body, background,
+etc.). To produce the 224×224 face crops that our VSR model expects as
+input, run them through MultiVSR's preprocessing pipeline.
 
 ```bash
 git clone https://github.com/Sindhu-Hegde/multivsr.git /tmp/multivsr
 cd /tmp/multivsr/preprocess
 
 for clip in /path/to/clips/test_seen/*/*.mp4; do
-    base=$(dirname "$clip" | xargs basename)
-    name=$(basename "$clip" .mp4)
+    youtube_id=$(dirname "$clip" | xargs basename)
+    clip_index=$(basename "$clip" .mp4)
     python run_pipeline.py \
         --videofile "$clip" \
-        --reference "${base}_${name}" \
-        --data_dir /path/to/face_tracks/
+        --reference "${youtube_id}/${clip_index}" \
+        --data_dir /path/to/face_tracks/test_seen/
 done
 ```
 
-The output face tracks land in
-`/path/to/face_tracks/<reference>/pycrop/*.avi`, ready to be passed
-to our `inference.py`.
+The pipeline produces several intermediate folders. The face-cropped
+files we want for VSR inference or training are in `pycrop/`:
 
+```
+/path/to/face_tracks/test_seen/
+├── pycrop/
+│   ├── ZWNM2sZxtRg/
+│   │   ├── 00001/
+│   │   │   └── 00000.avi
+│   │   ├── 00002/
+│   │   │   └── 00000.avi
+│   │   └── ...
+│   └── abc123def/
+│       └── 00001/
+│           └── 00000.avi
+├── pyavi/      (intermediate — full frames)
+├── pyframes/   (intermediate — extracted frames)
+├── pytmp/      (intermediate — temp audio)
+└── pywork/     (intermediate — face-tracking metadata)
+```
+
+The `.avi` files under `pycrop/` are the actual inputs accepted by
+`inference.py`, `evaluate.py`, and the AVSR / LRRo evaluation scripts. You can safely delete the other intermediate folders.
