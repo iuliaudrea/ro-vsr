@@ -1,5 +1,5 @@
 file_path,reference,category,subset,notes
-samples/sample_1.avi,nu mă interesează să demonstrez ceva ce am avut de demonstrat zic eu că am cam demonstrat așa,podcast,test_unseen,"Podcast recording; unseen speaker"
+samples/sample_1.avi,"poate în subconștientul meu pentru că totuși am o vârstă și spun sincer nu neapărat că mi-aș dori îmi doresc o familie dar parcă deja,poate subconștientul meu pentru că totuși am învățat și spun sincer nu neapărat că mi-aș dori îmi doresc o familie dar parcă deja",podcast,test_unseen,"Podcast recording; unseen speaker"
 samples/sample_2.avi,băi și îți dai seama nu aveți voie să fumați o să vă spun,podcast,test_unseen,"Podcast recording; unseen speaker"
 samples/sample_3.avi,mi-au suportat multe și eu le-am suportat eu lor dar așa e,podcast,test_unseen,"Podcast recording; unseen speaker"
 samples/sample_4.avi,cumva vreau să și înțeleg de ce în anumite momente eu des- detest omenirea și umanitatea și înțelegi,podcast,test_seen,Podcast recording; seen speaker
