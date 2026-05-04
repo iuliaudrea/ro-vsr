@@ -55,7 +55,7 @@ CER:            9.09%
 The `--mode` flag selects how predictions are produced:
 
 - **`hibrid_logp`** (default): shallow fusion at the log-probability
-  level at each decoding step. **This is the main reported method.**
+  level at each decoding step.
 - **`whisper`**: audio-only baseline (Whisper alone).
 - **`multivsr`**: video-only baseline (our VSR model alone).
 

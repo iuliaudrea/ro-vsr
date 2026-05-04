@@ -1,11 +1,10 @@
 # Word-level classification on LRRo
 
-We freeze the VTP visual encoder and our VSR transformer encoder
-([MultiVSR](https://github.com/Sindhu-Hegde/multivsr) architecture
-trained on the VSRo-200 dataset) and train a lightweight
-attention-pooling + MLP head on LRRo. This evaluates the cross-domain
-transferability of our encoder representations to a standard Romanian
-lip-reading benchmark.
+
+The LRRo dataset (Jitaru et al., 2020) is the first word-level visual speech recognition benchmark for the Romanian language. 
+
+To evaluate the cross-domain transferability of our encoder representations to this standard benchmark, we freeze the VTP visual encoder and our VSR transformer encoder (the [MultiVSR](https://github.com/Sindhu-Hegde/multivsr) architecture trained on the VSRo-200 dataset) and train a lightweight attention-pooling + MLP head on LRRo.
+
 
 ### LRRo dataset is not redistributed
 
