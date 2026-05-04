@@ -1,41 +1,35 @@
-# VSRo-200: Sentence-level Visual Speech Recognition for Romanian
-
-Inference code and demo for the VSRo-200 dataset and baseline models.
+# VSRo-200: Visual Speech Recognition for Romanian
 
 We introduce **VSRo-200**, the first sentence-level dataset and visual
 speech recognition system for Romanian. The dataset contains approximately
-200 hours of Romanian podcast recordings with Whisper-generated
-transcriptions and word-level alignments. Prior work (2020–2025) addressed
-only isolated word classification on the LRRo dataset; we provide the
-first sentence-level baseline for Romanian.
+200 hours of Romanian podcast recordings with both Whisper-generated
+transcriptions and human annotations. In addition, we provide an audio-visual extension for noisy conditions and a word-level evaluation on the LRRo benchmark.
 
-This repository contains:
+<p align="center">
+    <img src="dataset/vsro_dataset.gif"/>
+</p>
 
-- The inference code and pre-trained encoder-decoder models
-- Demo clips covering different categories of our test set (clean
-  podcasts, vlogs, archival footage, noisy scenes, academic talks)
-- Documentation for evaluating the model on your own clips
+## What's in this repo
 
-The training pipeline and the full dataset are described in the paper
-and released separately on the HuggingFace Hub.
+* `dataset/` — how to reconstruct the VSRo-200 dataset using the timestamps and transcripts published on HuggingFace
+* `inference.py` — single-clip VSR inference, with sample inputs in `samples/`
+* `evaluation/` — audio-visual fusion (`avsr/`) and LRRo word-level
+  classification (`lrro_classification/`)
+* `methodology/` — training scripts and data preparation pipeline,
+  for full reproducibility
 
 ## Installation
 
 ```bash
 git clone https://github.com/iuliaudrea/ro-vsr.git
 cd ro-vsr
-pip install -r requirements.txt
 bash scripts/setup.sh
+pip install -r requirements.txt
 ```
 
-`setup.sh` handles everything: it clones MultiVSR (model architecture and
+`setup.sh` clones MultiVSR (model architecture and
 tokenizer) and downloads the VTP feature extractor (~1 GB, from VGG Oxford).
 
-> **Note**: Our code builds on the architecture from
-> [MultiVSR](https://github.com/Sindhu-Hegde/multivsr) (Prajwal et al., 2025).
-> See [`docs/CREDITS.md`](docs/CREDITS.md) for full attribution.
-
-Tested on Python 3.10–3.12, on both GPU and CPU.
 
 ## Quick inference on a sample
 
@@ -53,118 +47,49 @@ Expected output:
 [infer] Running inference ...
 ──────────────────────────────────────────────────────────────────────
 File:           samples/sample_1.avi
-Transcription:  nu mă interesează să demonstrez ceva ce am avut de demonstrat sigur că am cam demonstrat așa
+Transcription:  poate subconștientul meu pentru că totuși am învățat și spun sincer nu neapărat că mi-aș dori îmi doresc o familie dar parcă deja
+Reference:      poate în subconștientul meu pentru că totuși am o vârstă și spun sincer nu neapărat că mi-aș dori îmi doresc o familie dar parcă deja
+WER:            12.00%
+CER:            6.77%
 ──────────────────────────────────────────────────────────────────────
 ```
 
-Inference runs on both GPU (~2s/clip on T4) and CPU (~45 min/clip).
-A GPU is recommended but not required.
+### Sample clips
 
-## Demo samples
+The `samples/` folder ships with several short VSR clips. Each clip is
+a 224×224 face crop produced by MultiVSR's preprocessing pipeline.
 
-We provide 8 demo clips covering different categories of our test set.
-The selection includes both well-performing cases and deliberate failure
-modes that illustrate the model's limitations:
+| Sample | Duration | Reference | WER | CER |
+| --- | --- | --- | --- | --- |
+| _to be filled in_ | | | | |
 
-| File | Category | Subset | Reference |
-| --- | --- | --- | --- |
-| `sample_1.avi` | Podcast (clean) | test_seen | "nu mă interesează să demonstrez ceva..." |
-| `sample_2.avi` | Podcast (clean) | test_seen | "băi și îți dai seama nu aveți voie..." |
-| `sample_3.avi` | Vlog | test_ood | "..." |
-| `sample_4.avi` | Black-and-white | test_ood | "..." (archival footage; failure mode: low resolution) |
-| `sample_5.avi` | Noisy scene | test_ood | "..." (relevant for AVSR comparison) |
-| `sample_6.avi` | Academic talk | test_ood | "..." (failure mode: technical vocabulary) |
-| `sample_7.avi` | Podcast | test_unseen | "..." (unseen speaker) |
-| `sample_8.avi` | Podcast | test_unseen | "..." (unseen speaker) |
-
-See [`samples/samples_metadata.csv`](samples/samples_metadata.csv) for
-full metadata.
-
-To run inference on all samples at once:
-
-```bash
-for i in 1 2 3 4 5 6 7 8; do
-    python inference.py --fpath samples/sample_${i}.avi
-done
-```
-
-## CLI options
-
-```bash
-python inference.py \
-    --fpath samples/sample_1.avi \
-    --model vsro200/models-vsro200/checkpoints/model_200h_auto.pt \
-    --beam_size 5 \
-    --max_len 256 \
-    --no_repeat_ngram_size 5
-```
-
-Available options:
-
-- `--fpath`: input .avi clip (160x160, mouth crop) — **required**
-- `--model`: HuggingFace repo of the encoder-decoder model (default: `ro_vsr_175h_auto`)
-- `--vtp_path`: path to the feature extractor (default: `checkpoints/feature_extractor.pth`)
-- `--beam_size`: beam size (default: `5`)
-- `--max_len`: max output tokens (default: `256`)
-- `--no_repeat_ngram_size`: block n-grams of this size from repeating (default: `5`, set to `0` to disable)
-- `--device`: `cuda` or `cpu` (default: auto-detect)
-
-## Available models
-
-| Model | Training data | WER test_seen | WER test_unseen |
-| --- | --- | --- | --- |
-| `vsro200/models-vsro200/checkpoints/model_200h_auto.pt` | ~175h Romanian podcasts | XX% | YY% |
-| `vsro200/models-vsro200/checkpoints/model_125h_auto.pt` | ~125h Romanian podcasts | XX% | YY% |
-
-## Inference on raw video
-
-Direct inference works only on **already-preprocessed** clips (160x160 with
-mouth crop). For raw video (an arbitrary .mp4 of someone speaking),
-face detection and mouth region extraction must be applied first. We
-recommend the MultiVSR preprocessing pipeline (based on SyncNet):
-
-```bash
-git clone https://github.com/Sindhu-Hegde/multivsr.git
-cd multivsr/preprocess
-python run_pipeline.py \
-    --videofile <path/to/video.mp4> \
-    --reference my_clip \
-    --data_dir /tmp/processed
-```
-
-Then:
-
-```bash
-python inference.py --fpath /tmp/processed/my_clip/pycrop/00000.avi
-```
-
-See [`docs/PREPROCESSING.md`](docs/PREPROCESSING.md) for details.
-
-## Dataset
-
-The full VSRo-200 dataset (~200h of Romanian podcasts with transcriptions
-and word-level alignments) is available on HuggingFace:
-[vsro200/vsro200](https://huggingface.co/datasets/vsro200/vsro200).
-
-See [`docs/DATASET.md`](docs/DATASET.md) for splits, preprocessing, and
-statistics.
+Inputs to `inference.py` must be `.avi` face crops. To run the system
+on raw video, see the preprocessing pipeline in [`dataset/`](dataset/).
 
 ## Other experiments
 
-The paper additionally reports results on:
+### Audio-visual fusion (AVSR)
 
-- **Audio-Visual Speech Recognition (AVSR)**: noise-robust evaluation
-  via shallow fusion between our VSR model (MultiVSR architecture
-  trained on VSRo-200) and a fine-tuned Whisper model. See
-  [`evaluation/avsr/`](evaluation/avsr/) for code, demo clips, and
-  results.
-- **Word-level classification on LRRo**: evaluation on the LRRo
-  benchmark (Jitaru et al., 2020) using our pre-trained encoder
-  representations with a lightweight attention-pooling + MLP head.
-  See [`evaluation/lrro_classification/`](evaluation/lrro_classification/)
-  for code and pre-trained classifiers. The LRRo dataset must be
-  obtained directly from the [official source](https://bionescu.aimultimedialab.ro/LRRo.html);
-  it is not redistributed here.
+We combine the VSR encoder-decoder with a Romanian-tuned Whisper-small
+(`vsro200/whisper-small-vsro200`) using shallow log-probability fusion
+during decoding. This significantly improves robustness in noisy
+conditions, particularly at low SNRs.
+
+See [`evaluation/avsr/`](evaluation/avsr/) for inference code and sample inputs.
+
+### Word-level classification on LRRo
+
+The frozen VSR encoder transfers well to word-level lipreading. We add
+a lightweight attention-pooling + MLP head and evaluate on LRRo
+(Jitaru et al., 2020). See [`evaluation/lrro_classification/`](evaluation/lrro_classification/)
+for inference code and sample inputs.
+
+## Methodology
+
+The notebooks and scripts used to **build** the dataset and **train**
+the released models are documented in
+[`methodology/`](methodology/) for full reproducibility. End users
+do not need to run any of this code to use the released artifacts.
 
 ## Citation
 
@@ -172,10 +97,9 @@ If you use this code, the models, or the VSRo-200 dataset, please cite:
 
 ```bibtex
 @inproceedings{[id]2026vsro200,
-    author    = "[Author 1] and [Author 2]",
-    title     = "[Paper title]",
-    booktitle = "Advances in Neural Information Processing Systems Datasets and Benchmarks Track",
-    year      = "2026",
+    author    = "",
+    title     = "VSRo-200: A Romanian Visual Speech Recognition Dataset for Studying Supervision and Multimodal Robustness",
+    year      = "2026"
 }
 ```
 
@@ -190,10 +114,3 @@ Please also cite the foundational work we build upon:
     year      = "2025",
 }
 ```
-
-## License
-
-Our code: **MIT**.
-Code from MultiVSR (`ro_vsr/models.py`, `ro_vsr/tokenizer.py`,
-downloaded by `scripts/setup.sh`):
-property of [Prajwal & Hegde](https://github.com/Sindhu-Hegde/multivsr).

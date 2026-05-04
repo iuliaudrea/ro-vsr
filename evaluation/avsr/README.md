@@ -49,17 +49,6 @@ CER:            9.09%
 ──────────────────────────────────────────────────────────────────────
 ```
 
-For comparison, the same clip decoded with audio-only and video-only
-baselines yields:
-
-| Mode | WER | CER |
-| --- | --- | --- |
-| `whisper` (audio only) | 68.42% | 23.14% |
-| `multivsr` (video only) | 73.68% | 25.62% |
-| `hibrid_logp` (fusion) | **26.32%** | **9.09%** |
-
-A drop of 42 absolute WER points over Whisper alone, on a clip with
-−5 dB babble noise.
 
 ## Decoding modes
 
@@ -98,31 +87,11 @@ mixed from 4 randomly selected speakers. Full reference transcriptions
 are in [`samples_avsr/samples_avsr_metadata.csv`](samples_avsr/samples_avsr_metadata.csv).
 
 
-<!-- 
-## Reported results
-
-WER (lower is better) on the `test_valid` split (100 clips), averaged
-across two noise types (babble and gaussian) at each SNR level:
-
-| SNR (dB) | Whisper ZS | Whisper FT | VSR | Fusion (logp, ZS) | **Fusion (logp, FT)** |
-| --- | --- | --- | --- | --- | --- |
-| **−5** | 0.922 | 1.125 | 0.505 | 0.792 | **0.433** |
-| **0**  | 0.704 | 0.463 | 0.505 | 0.511 | **0.279** |
-| **5**  | 0.474 | 0.231 | 0.505 | 0.347 | **0.191** |
-| **10** | 0.308 | 0.158 | 0.505 | 0.224 | **0.154** |
-| **15** | 0.232 | 0.128 | 0.505 | 0.188 | **0.126** |
-
-ZS = zero-shot Whisper (`alexandradiaconu/whisper-small-echo-34`).
-FT = fine-tuned on VSRo + noise (our `vsro200/whisper-small-vsro200`,
-adapted from [Diaconu et al., 2026](https://arxiv.org/abs/2603.02368)).
-
- -->
-
 
 ## CLI options
 
 ```
---fpath          Path to input video (.mp4 or .avi, 160x160 with audio track)
+--fpath          Path to input video (.mp4 or .avi with audio track)
 --vsr_model      HF repo for the VSR model (default: vsro200/models-vsro200/checkpoints/model_200h_auto.pt)
 --whisper_model  HF repo for Whisper (default: vsro200/whisper-small-vsro200)
 --mode           hibrid_logp | whisper | multivsr (default: hibrid_logp)
@@ -131,25 +100,6 @@ adapted from [Diaconu et al., 2026](https://arxiv.org/abs/2603.02368)).
 --metadata       Metadata CSV for WER lookup (default: samples_avsr/samples_avsr_metadata.csv)
 --device         cuda | cpu (default: auto-detect)
 ```
-
-<!-- ## Running on your own clips
-
-To test on your own noisy clips:
-
-1. Make sure your video is a 160×160 face crop (use the MultiVSR
-   preprocessing pipeline — see [`../../docs/PREPROCESSING.md`](../../docs/PREPROCESSING.md)).
-2. Mix audio with noise at the desired SNR (e.g., with `ffmpeg` and
-   MUSAN babble samples).
-3. Mux the noisy audio back into the video as a single MP4:
-   ```bash
-   ffmpeg -i your_video.mp4 -i your_noisy_audio.wav \
-          -c:v copy -map 0:v:0 -map 1:a:0 -shortest \
-          your_clip_with_noise.mp4
-   ```
-4. Run inference:
-   ```bash
-   python inference_avsr.py --fpath your_clip_with_noise.mp4
-   ``` -->
 
 ## Citation
 
@@ -164,7 +114,8 @@ audio model and Whisper itself:
   year   = {2026},
   url    = {https://arxiv.org/abs/2603.02368},
 }
-
+```
+```bibtex
 @misc{radford2022whisper,
   title  = {Robust Speech Recognition via Large-Scale Weak Supervision},
   author = {Radford, Alec and Kim, Jong Wook and Xu, Tao and Brockman, Greg

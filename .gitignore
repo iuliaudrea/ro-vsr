@@ -32,3 +32,4 @@ Thumbs.db
 outputs/
 *.log
 predictions/
+__pycache__/ # dacă nu e deja acolo

@@ -7,45 +7,38 @@ attention-pooling + MLP head on LRRo. This evaluates the cross-domain
 transferability of our encoder representations to a standard Romanian
 lip-reading benchmark.
 
-### ⚠️ LRRo dataset is not redistributed
+### LRRo dataset is not redistributed
 
 LRRo (Jitaru et al., 2020) must be obtained directly from the official
 source. We provide only the **inference code** and the **trained MLP
 heads**; the dataset itself remains the property of its authors
 (Jitaru, Abdulamit, and Ionescu — University Politehnica of Bucharest).
 
-<!-- 
-## Download LRRo
-
-The dataset is hosted on Zenodo. The download is a RAR archive even
-though it has a `.tar.gz` extension, so we use `unrar` to extract.
-
 ```bash
-# 1. Install unrar (Ubuntu/Debian/Colab)
 sudo apt-get install -y unrar
 
-# 2. Download the main archive (~XGB)
-mkdir -p /path/to/lrro
+# Download the main archive
+mkdir -p /lrro
 curl -L -o /tmp/lrro_main.tar.gz \
     "https://zenodo.org/records/3753559/files/LRRo_data_set.tar.gz"
 
-# 3. Extract the main archive
-unrar x -o+ /tmp/lrro_main.tar.gz /path/to/lrro/
+# Extract the main archive
+unrar x -o+ /tmp/lrro_main.tar.gz /lrro/
 
-# 4. Extract the two sub-archives (Lab and Wild)
-for sub in /path/to/lrro/"LRRo data set"/*.tar.gz; do
-    unrar x -o+ "$sub" "$(dirname "$sub")/"
+# Extract the two sub-archives
+for sub in /lrro/"LRRo data set"/*.tar.gz; do
+    if unrar t "$sub" >/dev/null 2>&1; then
+        unrar x -o+ "$sub" "$(dirname "$sub")/"
+    else
+        tar -xzf "$sub" -C "$(dirname "$sub")/"
+    fi
 done
-
-# 5. Verify the structure
-ls "/path/to/lrro/LRRo data set/Lab_LRRo_data_set/test/"
-# Should list folders: ace, agresivitate, anumiti, anume, ...
 ```
 
 After extraction, the structure is:
 
 ```
-/path/to/lrro/LRRo data set/
+/lrro/LRRo data set/
 ├── Lab_LRRo_data_set/
 │   ├── train/<word>/<clip_id>/0.jpg, 1.jpg, ...
 │   ├── val/<word>/<clip_id>/...
@@ -56,15 +49,6 @@ After extraction, the structure is:
     └── test/...
 ```
 
-### Quick download check
-
-Pick any clip from the test set to verify everything is in place:
-
-```bash
-ls "/path/to/lrro/LRRo data set/Wild_LRRo_data_set/test/" | head
-ls "/path/to/lrro/LRRo data set/Wild_LRRo_data_set/test/problema/" | head -3
-``` -->
-
 ## Running inference
 
 After setting up the main repository (`bash scripts/setup.sh` from the
@@ -73,7 +57,7 @@ repo root) and downloading [LRRo](https://zenodo.org/records/3753559/files/LRRo_
 ```bash
 cd evaluation/lrro_classification
 python inference_lrro.py \
-    --clip_dir "/path/to/lrro/LRRo data set/Wild_LRRo_data_set/test/problema/n171/" \
+    --clip_dir "/lrro/LRRo data set/Wild_LRRo_data_set/test/problema/n141/" \
     --split wild
 ```
 
@@ -81,25 +65,28 @@ Expected output:
 
 ```
 [device] cuda
-[load] Loading VTP visual encoder ...
+[load] Loading VTP visual encoder from /content/ro-vsr/checkpoints/feature_extractor.pth
 [load] Downloading VSR encoder from vsro200/models-vsro200/checkpoints/model_200h_auto.pt
 [load] Downloading MLP from vsro200/mlp-lrro-vsro200/64_bottom/best_wild_clf.pt
 [load] MLP has 21 output classes
 [load] Class names auto-detected from LRRo folder structure
 [infer] Running inference ...
+[video] Frames extracted: (1, 3, 29, 96, 96)
 ──────────────────────────────────────────────────────────────────────
-Clip:            /path/to/lrro/.../problema/n171/
+Clip:            /lrro/LRRo data set/Wild_LRRo_data_set/test/problema/n141/
 Strategy:        64_bottom
 MLP split:       wild  (21 classes)
 True label:      problema
 Top-5 predictions:
-  1. problema             ████████████████████████████░░  98.43%  ←
-  2. pentru               ░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░   1.12%
-  3. ...
+  1. problema             █████████████████████████████░ 99.41%  ←
+  2. momentul             ░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░  0.26%
+  3. probabil             ░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░  0.13%
+  4. informatii           ░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░  0.05%
+  5. romania              ░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░  0.05%
 ──────────────────────────────────────────────────────────────────────
 ```
 
-Class names are **auto-detected** from the LRRo folder structure when
+Class names are auto-detected from the LRRo folder structure when
 the clip path is inside an LRRo dataset tree.
 
 ## Configuration
@@ -111,7 +98,7 @@ strategies, each with separate heads for the LAB and WILD splits.
 ### Preprocessing strategies
 
 LRRo provides 64x64 grayscale mouth crops. Our VTP encoder expects
-96x96 RGB face-like inputs. We tested four strategies for adapting
+96x96 RGB face-like inputs. We tested three strategies for adapting
 LRRo frames to this input format:
 
 | Strategy | Description |
@@ -119,6 +106,8 @@ LRRo frames to this input format:
 | `96_resize` | Resize directly to 96x96 |
 | `64_middle` | Keep 64x64, place exactly center on 96x96 gray canvas |
 | `64_bottom` | Keep 64x64, place center-bottom on 96x96 gray canvas |
+
+
 
 ### CLI options
 

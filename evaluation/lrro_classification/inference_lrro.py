@@ -61,7 +61,7 @@ VTP_PATH = os.path.join(REPO_ROOT, "checkpoints/feature_extractor.pth")  # fixed
 DEFAULT_STRATEGY = "64_bottom"
 DEFAULT_SPLIT = "lab"
 
-# MLP hyperparameters (must match training; see notebook Cell 26)
+# MLP hyperparameters
 HIDDEN_DIM = 512
 DROPOUT = 0.5
 

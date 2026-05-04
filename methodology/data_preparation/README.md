@@ -4,7 +4,7 @@ Scripts used to construct the timestamps and transcripts that define
 VSRo-200, starting from raw YouTube podcast videos.
 
 These scripts produce the CSV files published on HuggingFace
-(`trainval_annot.csv`, `trainval_auto.csv`, `test_*.csv`). End users
+(`trainval_auto.csv`, `test_*.csv`). End users
 who only want to **use** the dataset should not need to run them —
 they should follow [`../../dataset/README.md`](../../dataset/README.md)
 instead.
