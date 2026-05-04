@@ -9,7 +9,7 @@ The four strategies differ in how the 64x64 LRRo frames are placed onto
 the 96x96 canvas expected by the encoder. They are part of an ablation
 study reported in the paper.
 
-Best-performing strategy: `load_lrro_clip_48_bottom`.
+Best-performing strategy: `load_lrro_clip_64_bottom`.
 """
 
 import glob
@@ -38,33 +38,6 @@ def _frames_to_tensor(frames):
     video = np.transpose(video, (1, 0, 2, 3))   # (3, T, 96, 96)
     return video
 
-
-def load_lrro_clip_48_bottom(clip_dir: str) -> Optional[np.ndarray]:
-    """
-    Strategy '48_bottom' (default, best-performing).
-    Resize each frame from 64x64 to 48x48 and place it center-bottom
-    on a 96x96 mid-gray canvas. Mimics the position a real mouth crop
-    would have within a face crop.
-    """
-    img_size = 48
-    x_off = (CANVAS_SIZE - img_size) // 2  # 24
-    y_off = CANVAS_SIZE - img_size          # 48
-
-    jpgs = _list_jpgs(clip_dir)
-    if not jpgs:
-        return None
-
-    frames = []
-    for path in jpgs:
-        img = Image.open(path).convert("L").resize((img_size, img_size), Image.BILINEAR)
-        arr = np.array(img, dtype=np.float32) / 255.0
-
-        canvas = np.full((CANVAS_SIZE, CANVAS_SIZE), GRAY_PAD_VALUE, dtype=np.float32)
-        canvas[y_off:y_off + img_size, x_off:x_off + img_size] = arr
-
-        frames.append(np.stack([canvas, canvas, canvas], axis=0))
-
-    return _frames_to_tensor(frames)
 
 
 def load_lrro_clip_64_bottom(clip_dir: str) -> Optional[np.ndarray]:
@@ -138,7 +111,6 @@ def load_lrro_clip_96_resize(clip_dir: str) -> Optional[np.ndarray]:
 
 
 PREPROCESSING_FNS = {
-    "48_bottom": load_lrro_clip_48_bottom,
     "64_bottom": load_lrro_clip_64_bottom,
     "64_middle": load_lrro_clip_64_middle,
     "96_resize": load_lrro_clip_96_resize,

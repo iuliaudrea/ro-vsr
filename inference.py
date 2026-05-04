@@ -6,8 +6,7 @@ Example usage:
     python inference.py --fpath samples/sample_1.avi --model iulik-pisik/ro_vsr_175h_auto
     python inference.py --fpath samples/sample_1.avi --no_repeat_ngram_size 0
 
-Input clips must be .avi files with 160x160 frames (face crop centered on
-the mouth). For raw video, see docs/PREPROCESSING.md.
+Input clips must be .avi files with 224x224 frames. For raw video, see docs/PREPROCESSING.md.
 """
 
 import argparse
@@ -72,9 +71,9 @@ def normalize_text(text: str) -> str:
 
 def read_video(fpath: str, device: torch.device) -> torch.Tensor:
     """
-    Read a 160x160 .avi clip and return a tensor of shape [1, 3, T, 96, 96].
+    Read .avi clip and return a tensor of shape [1, 3, T, 96, 96].
 
-    Crops the central 96x96 region (the mouth area) from each frame.
+    Crops the central 96x96 region from each frame.
     """
     from decord import VideoReader, bridge
     bridge.set_bridge("native")
@@ -91,7 +90,7 @@ def read_video(fpath: str, device: torch.device) -> torch.Tensor:
     frames = torch.from_numpy(frames).to(device).unsqueeze(0)
     frames = frames.permute(0, 4, 1, 2, 3)
 
-    # Center crop 96x96 (mouth region)
+    # Center crop 96x96
     crop_x = (frames.size(3) - 96) // 2
     crop_y = (frames.size(4) - 96) // 2
     faces = frames[:, :, :, crop_x:crop_x + 96, crop_y:crop_y + 96]
@@ -215,7 +214,7 @@ def main():
     )
     parser.add_argument(
         "--fpath", type=str, required=True,
-        help="Path to the input .avi clip (160x160)",
+        help="Path to the input .avi clip",
     )
     parser.add_argument(
         "--model", type=str, default=DEFAULT_MODEL,

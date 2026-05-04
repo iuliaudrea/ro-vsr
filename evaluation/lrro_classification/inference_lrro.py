@@ -16,11 +16,11 @@ strategy has its own MLPs trained on it (separate for the LAB and WILD
 splits of LRRo).
 
 Example usage:
-    # Default: 48_bottom strategy + LAB MLP
+    # Default: 64_bottom strategy + LAB MLP
     python inference_lrro.py --clip_dir /path/to/lrro/clip_folder
 
-    # Use 64_bottom + Wild MLP:
-    python inference_lrro.py --clip_dir /path/to/clip --strategy 64_bottom --split wild
+    # Use 96_resize + Wild MLP:
+    python inference_lrro.py --clip_dir /path/to/clip --strategy 96_resize --split wild
 
 LRRo dataset must be obtained separately from the official source:
     https://bionescu.aimultimedialab.ro/LRRo.html
@@ -57,12 +57,12 @@ VSR_MODEL = "iulik-pisik/ro_vsr_150h_auto"           # fixed
 MLP_REPO = "iulik-pisik/ro_vsr_classification_mlps"  # fixed
 VTP_PATH = os.path.join(REPO_ROOT, "checkpoints/feature_extractor.pth")  # fixed
 
-DEFAULT_STRATEGY = "48_bottom"
+DEFAULT_STRATEGY = "64_bottom"
 DEFAULT_SPLIT = "lab"
 
 # MLP hyperparameters (must match training; see notebook Cell 26)
 HIDDEN_DIM = 512
-DROPOUT = 0.6
+DROPOUT = 0.5
 
 
 # ============================================================

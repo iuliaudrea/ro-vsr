@@ -83,13 +83,13 @@ Expected output:
 [device] cuda
 [load] Loading VTP visual encoder ...
 [load] Downloading VSR encoder from iulik-pisik/ro_vsr_150h_auto
-[load] Downloading MLP from iulik-pisik/ro_vsr_classification_mlps/48_bottom/best_wild_clf.pt
+[load] Downloading MLP from iulik-pisik/ro_vsr_classification_mlps/64_bottom/best_wild_clf.pt
 [load] MLP has 21 output classes
 [load] Class names auto-detected from LRRo folder structure
 [infer] Running inference ...
 ──────────────────────────────────────────────────────────────────────
 Clip:            /path/to/lrro/.../problema/n171/
-Strategy:        48_bottom
+Strategy:        64_bottom
 MLP split:       wild  (21 classes)
 True label:      problema
 Top-5 predictions:
@@ -119,13 +119,12 @@ LRRo frames to this input format:
 | `96_resize` | Resize directly to 96x96 |
 | `64_middle` | Keep 64x64, place exactly center on 96x96 gray canvas |
 | `64_bottom` | Keep 64x64, place center-bottom on 96x96 gray canvas |
-| `48_bottom` (default) | Resize to 48x48, place center-bottom on 96x96 gray canvas |
 
 ### CLI options
 
 ```
 --clip_dir   Folder containing the clip's .jpg frames (required)
---strategy   48_bottom | 64_bottom | 64_middle | 96_resize  (default: 48_bottom)
+--strategy   64_bottom | 64_middle | 96_resize  (default: 64_bottom)
 --split      lab | wild  (default: lab)
               - lab: MLP for LRRo Lab subset (48 classes)
               - wild: MLP for LRRo Wild subset (21 classes)
@@ -138,18 +137,6 @@ Make sure to use `--split lab` for clips from `Lab_LRRo_data_set/`
 and `--split wild` for clips from `Wild_LRRo_data_set/`. The script
 will warn you if there's a mismatch.
 
-### Examples
-
-```bash
-# Default: 48_bottom strategy + LAB MLP, on a Lab clip
-python inference_lrro.py \
-    --clip_dir "/path/to/.../Lab_LRRo_data_set/test/buna/00012/"
-
-# Compare all four preprocessing strategies on the same clip:
-for s in 48_bottom 64_bottom 64_middle 96_resize; do
-    python inference_lrro.py --clip_dir "$CLIP" --strategy $s --split wild
-done
-```
 
 ## Reported results
 
@@ -158,7 +145,7 @@ Results from the paper, on the LRRo official `test` split:
 | Method | Lab Top-1 | Lab Top-5 | Wild Top-1 | Wild Top-5 |
 | --- | --- | --- | --- | --- |
 | LRRo baseline (VGG-M, Inception-V4) | 71.0% | 92.0% | 33.0% | 62.0% |
-| **Ours** (VSR encoder + Attn+MLP, 48_bottom) | **94.2%** | **99.4%** | **74.4%** | **90.9%** |
+| **Ours** (VSR encoder + Attn+MLP, 64_bottom) | **95.0%** | **99.4%** | **72.7%** | **92.6%** |
 
 
 The LRRo baseline is trained from scratch on LRRo data only. Our
@@ -174,7 +161,6 @@ All trained MLP heads are available on HuggingFace:
 
 ```
 ro_vsr_classification_mlps/
-├── 48_bottom/{best_lab_clf.pt, best_wild_clf.pt}
 ├── 64_bottom/{best_lab_clf.pt, best_wild_clf.pt}
 ├── 64_middle/{best_lab_clf.pt, best_wild_clf.pt}
 └── 96_resize/{best_lab_clf.pt, best_wild_clf.pt}
