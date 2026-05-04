@@ -1,7 +1,9 @@
-file_path,reference,category,subset,duration_s,notes
-samples/sample_1.avi,"nu mă interesează să demonstrez ceva ce am avut de demonstrat zic eu că am cam demonstrat așa",podcast,test,3,"Podcast recording"
-samples/sample_2.avi,"băi și îți dai seama nu aveți voie să fumați o să vă spun",podcast,test,4,"Podcast recording"
-samples/sample_3.avi,"cred că ăsta e cel mai frumos mod să descoperi un oraș o iei e așa la pas nu știi nimic nu știu la ce să te aștepți și acum am dat și de china town",vlog,test_ood,8,"Vlog footage with movement and changing background"
-samples/sample_4.avi,"opoziții tot astfel cum o judecată are două valori adevărată sau fals",black_and_white,test_ood,9,"Archival black-and-white footage; lower effective resolution"
-samples/sample_5.avi,"dar nu-l mai poate suporta nimeni atâta timp cât te bagi tu în în poliție",noisy_scene,test_ood,6,"Recording in a noisy environment; relevant for AVSR comparison"
-samples/sample_6.avi,"ne referim la creșterea particulelor de ldl colesterol care sunt agresive la nivelul peretelui arterial la trigliceride sau din contră scăderea acelor particule de colesterol",domain_specific,test_ood,13,"Romanian Academy talk; medical vocabulary outside conversational distribution"
+file_path,reference,category,subset,notes
+samples/sample_1.avi,nu mă interesează să demonstrez ceva ce am avut de demonstrat zic eu că am cam demonstrat așa,podcast,test_unseen,"Podcast recording; unseen speaker"
+samples/sample_2.avi,băi și îți dai seama nu aveți voie să fumați o să vă spun,podcast,test_unseen,"Podcast recording; unseen speaker"
+samples/sample_3.avi,mi-au suportat multe și eu le-am suportat eu lor dar așa e,podcast,test_unseen,"Podcast recording; unseen speaker"
+samples/sample_4.avi,cumva vreau să și înțeleg de ce în anumite momente eu des- detest omenirea și umanitatea și înțelegi,podcast,test_seen,Podcast recording; seen speaker
+samples/sample_5.avi,cred că ăsta e cel mai frumos mod să descoperi un oraș o iei e așa la pas nu știi nimic nu știu la ce să te aștepți și acum am dat și de china town,vlog,test_ood,Vlog footage with movement and changing background
+samples/sample_6.avi,opoziții tot astfel cum o judecată are două valori adevărată sau fals,archival,test_ood,Archival black-and-white footage; lower effective resolution
+samples/sample_7.avi,dar nu-l mai poate suporta nimeni atâta timp cât te bagi tu în în poliție,noisy,test_ood,Recording in a noisy environment; relevant for AVSR comparison
+samples/sample_8.avi,ne referim la creșterea particulelor de ldl colesterol care sunt agresive la nivelul peretelui arterial la trigliceride sau din contră scăderea acelor particule de colesterol,specialised,test_ood,Romanian Academy talk; medical vocabulary outside conversational distribution
