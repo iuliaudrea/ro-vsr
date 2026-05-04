@@ -11,7 +11,7 @@ Building upon the MultiVSR architecture, which we fine-tune with our data, we es
 <p align="center">
     <img src="dataset/vsro_dataset.gif"/>
 </p>
-<br>
+
 
 ## What's in this repo
 
@@ -69,12 +69,8 @@ a 224×224 face crop produced by MultiVSR's preprocessing pipeline.
 | `samples/sample_2.avi` | băi și îți dai seama nu aveți voie să fumați o să vă spun |
 | `samples/sample_3.avi` | mi-au suportat multe și eu le-am suportat eu lor dar așa e |
 | `samples/sample_4.avi` | cumva vreau să și înțeleg de ce în anumite momente eu des- detest omenirea și umanitatea și înțelegi |
-| `samples/sample_5.avi` | cred că ăsta e cel mai frumos mod să descoperi un oraș o iei așa la pas nu știi nimic nu știu la ce să te aștepți și acum am dat și de china town |
-| `samples/sample_6.avi` | opoziții tot astfel cum o judecată are două valori adevărată sau fals |
-| `samples/sample_7.avi` | dar nu-l mai poate suporta nimeni atâta timp cât te bagi tu în în poliție |
-| `samples/sample_8.avi` | ne referim la creșterea particulelor de ldl colesterol care sunt agresive la nivelul peretelui arterial la trigliceride sau din contră scăderea acelor particule de colesterol |
 
-For full details, including sample splits and video categories, see [`samples/samples_metadata.csv`](samples/samples_metadata.csv).
+For additional out-of-distribution (OOD) examples and complete metadata (including subset splits and categories), please refer to [`samples/samples_metadata.csv`](samples/samples_metadata.csv).
 
 ## Other experiments
 
@@ -82,10 +78,7 @@ For full details, including sample splits and video categories, see [`samples/sa
 
 We combine the VSR encoder-decoder with a Romanian-tuned Whisper-small
 (`vsro200/whisper-small-vsro200`) using shallow log-probability fusion
-during decoding. This significantly improves robustness in noisy
-conditions, particularly at low SNRs.
-
-See [`evaluation/avsr/`](evaluation/avsr/) for inference code and sample inputs.
+during decoding. See [`evaluation/avsr/`](evaluation/avsr/) for inference code and sample inputs.
 
 ### Word-level classification on LRRo
 
