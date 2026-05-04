@@ -1,7 +1,7 @@
 # VSRo-200 Dataset
 
 The full dataset is available on HuggingFace:
-[iulik-pisik/ro_vsr](https://huggingface.co/datasets/iulik-pisik/ro_vsr).
+[vsro200/vsro200](https://huggingface.co/datasets/vsro200/vsro200).
 
 ## Statistics
 
@@ -31,7 +31,7 @@ word-level alignments.
 ```python
 from huggingface_hub import snapshot_download
 snapshot_download(
-    repo_id="iulik-pisik/ro_vsr",
+    repo_id="vsro200/vsro200",
     repo_type="dataset",
     local_dir="./vsro200_data",
 )

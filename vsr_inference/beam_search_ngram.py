@@ -110,7 +110,7 @@ def beam_search_with_rep_penalty(
     Beam search identical to MultiVSR's (`search.py`), plus repetition
     penalty and n-gram blocking.
     """
-    from ro_vsr.dataloader_utils import subsequent_mask
+    from vsr_inference.dataloader_utils import subsequent_mask
 
     if special_token_ids is None:
         special_token_ids = set()

@@ -8,7 +8,7 @@
 #   2. VTP feature extractor (https://www.robots.ox.ac.uk/~vgg/research/
 #      vtp-for-lip-reading/) — visual front-end, by Prajwal et al.
 #
-# These external files are placed inside our `ro_vsr/` package and
+# These external files are placed inside our `vsr_inference/` package and
 # `checkpoints/` folder for easy importing. They are NOT redistributed
 # in our repository — `.gitignore` excludes them.
 
@@ -24,20 +24,20 @@ echo "[1/2] Fetching MultiVSR (Prajwal, Hegde & Zisserman, ICASSP 2025)"
 echo "       Source: https://github.com/Sindhu-Hegde/multivsr"
 git clone --depth 1 https://github.com/Sindhu-Hegde/multivsr.git "$TMP_DIR/multivsr" 2>&1 | tail -1
 
-echo "[1/2] Copying MultiVSR's models.py and tokenizer.py into ro_vsr/ ..."
+echo "[1/2] Copying MultiVSR's models.py and tokenizer.py into vsr_inference/ ..."
 for f in models.py tokenizer.py; do
-    cp "$TMP_DIR/multivsr/$f" "$REPO_DIR/ro_vsr/$f"
+    cp "$TMP_DIR/multivsr/$f" "$REPO_DIR/vsr_inference/$f"
 done
-echo "      ✅ ro_vsr/models.py, ro_vsr/tokenizer.py (from MultiVSR)"
+echo "      ✅ vsr_inference/models.py, vsr_inference/tokenizer.py (from MultiVSR)"
 
-echo "[1/2] Copying MultiVSR's tokenizer files into ro_vsr/checkpoints/multilingual/ ..."
-mkdir -p "$REPO_DIR/ro_vsr/checkpoints/multilingual"
-cp -r "$TMP_DIR/multivsr/checkpoints/multilingual/." "$REPO_DIR/ro_vsr/checkpoints/multilingual/"
-echo "      ✅ ro_vsr/checkpoints/multilingual/ (from MultiVSR)"
+echo "[1/2] Copying MultiVSR's tokenizer files into vsr_inference/checkpoints/multilingual/ ..."
+mkdir -p "$REPO_DIR/vsr_inference/checkpoints/multilingual"
+cp -r "$TMP_DIR/multivsr/checkpoints/multilingual/." "$REPO_DIR/vsr_inference/checkpoints/multilingual/"
+echo "      ✅ vsr_inference/checkpoints/multilingual/ (from MultiVSR)"
 
 # Add get_tokenizer() if it doesn't already exist
-if ! grep -q "^def get_tokenizer" "$REPO_DIR/ro_vsr/tokenizer.py"; then
-    printf "\n\ndef get_tokenizer():\n    return tokenizer\n" >> "$REPO_DIR/ro_vsr/tokenizer.py"
+if ! grep -q "^def get_tokenizer" "$REPO_DIR/vsr_inference/tokenizer.py"; then
+    printf "\n\ndef get_tokenizer():\n    return tokenizer\n" >> "$REPO_DIR/vsr_inference/tokenizer.py"
 fi
 
 rm -rf "$TMP_DIR"

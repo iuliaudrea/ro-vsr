@@ -9,7 +9,7 @@ Pipeline:
 
 The VTP visual encoder and the VSR encoder are FIXED (not configurable):
   - VTP: original feature extractor from VGG Oxford
-  - VSR encoder: from iulik-pisik/ro_vsr_150h_auto
+  - VSR encoder: from vsro200/models-vsro200/checkpoints/model_200h_auto.pt
 
 The MLP and preprocessing strategy ARE configurable. Each preprocessing
 strategy has its own MLPs trained on it (separate for the LAB and WILD
@@ -43,7 +43,7 @@ from huggingface_hub import hf_hub_download
 REPO_ROOT = os.path.abspath(os.path.join(os.path.dirname(__file__), "..", ".."))
 sys.path.insert(0, REPO_ROOT)
 
-from ro_vsr.models import build_model, build_visual_encoder
+from vsr_inference.models import build_model, build_visual_encoder
 
 from preprocessing import PREPROCESSING_FNS
 from model import MLP
@@ -53,8 +53,9 @@ from model import MLP
 # DEFAULTS
 # ============================================================
 
-VSR_MODEL = "iulik-pisik/ro_vsr_150h_auto"           # fixed
-MLP_REPO = "iulik-pisik/ro_vsr_classification_mlps"  # fixed
+VSR_MODEL_REPO = "vsro200/models-vsro200"            # fixed
+VSR_MODEL_FILENAME = "model_200h_auto.pt"            # fixed
+MLP_REPO = "vsro200/mlp-lrro-vsro200"                # fixed
 VTP_PATH = os.path.join(REPO_ROOT, "checkpoints/feature_extractor.pth")  # fixed
 
 DEFAULT_STRATEGY = "64_bottom"
@@ -186,9 +187,11 @@ def load_encoder_models(device: torch.device):
     for p in visual_encoder.parameters():
         p.requires_grad = False
 
-    print(f"[load] Downloading VSR encoder from {VSR_MODEL}")
+    print(f"[load] Downloading VSR encoder from {VSR_MODEL_REPO}/checkpoints/{VSR_MODEL_FILENAME}")
     enc_path = hf_hub_download(
-        repo_id=VSR_MODEL, filename="checkpoints/best_model.pt", repo_type="model",
+        repo_id=VSR_MODEL_REPO,
+        filename=f"checkpoints/{VSR_MODEL_FILENAME}",
+        repo_type="model",
     )
     model = build_model().to(device).eval()
     model.load_state_dict(torch.load(enc_path, map_location=device))

@@ -3,7 +3,7 @@ Single-clip inference for the Romanian VSR system (VSRo-200).
 
 Example usage:
     python inference.py --fpath samples/sample_1.avi
-    python inference.py --fpath samples/sample_1.avi --model iulik-pisik/ro_vsr_175h_auto
+    python inference.py --fpath samples/sample_1.avi --model vsro200/models-vsro200/checkpoints/model_200h_auto.pt
     python inference.py --fpath samples/sample_1.avi --no_repeat_ngram_size 0
 
 Input clips must be .avi files with 224x224 frames. For raw video, see docs/PREPROCESSING.md.
@@ -23,20 +23,21 @@ import numpy as np
 import torch
 from huggingface_hub import hf_hub_download
 
-# Add the `ro_vsr/` package to path
+# Add the `vsr_inference/` package to path
 sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
 
-from ro_vsr.models import build_model, build_visual_encoder
-from ro_vsr.tokenizer import get_tokenizer
-from ro_vsr.beam_search_ngram import beam_search_with_rep_penalty
-from ro_vsr.metrics import lookup_reference, print_metrics_block
+from vsr_inference.models import build_model, build_visual_encoder
+from vsr_inference.tokenizer import get_tokenizer
+from vsr_inference.beam_search_ngram import beam_search_with_rep_penalty
+from vsr_inference.metrics import lookup_reference, print_metrics_block
 
 
 # ============================================================
 # DEFAULT CONFIGURATION
 # ============================================================
 
-DEFAULT_MODEL = "iulik-pisik/ro_vsr_175h_auto"
+DEFAULT_MODEL_REPO = "vsro200/models-vsro200"
+DEFAULT_MODEL_FILENAME = "model_200h_auto.pt"
 DEFAULT_VTP_PATH = "checkpoints/feature_extractor.pth"
 DEFAULT_METADATA = "samples/samples_metadata.csv"
 
@@ -102,7 +103,7 @@ def read_video(fpath: str, device: torch.device) -> torch.Tensor:
 # MODEL LOADING
 # ============================================================
 
-def load_models(model_repo: str, vtp_path: str, device: torch.device):
+def load_models(model_filename: str, vtp_path: str, device: torch.device):
     """
     Load the VTP feature extractor (from local .pth file) and the
     encoder-decoder model (from HuggingFace Hub).
@@ -128,10 +129,10 @@ def load_models(model_repo: str, vtp_path: str, device: torch.device):
         p.requires_grad = False
 
     # --- Encoder-decoder from HuggingFace ---
-    print(f"[load] Downloading encoder-decoder from {model_repo} ...")
+    print(f"[load] Downloading encoder-decoder from {DEFAULT_MODEL_REPO}/checkpoints/{model_filename} ...")
     lm_path = hf_hub_download(
-        repo_id=model_repo,
-        filename="checkpoints/best_model.pt",
+        repo_id=DEFAULT_MODEL_REPO,
+        filename=f"checkpoints/{model_filename}",
         repo_type="model",
     )
     model = build_model().to(device).eval()
@@ -139,7 +140,7 @@ def load_models(model_repo: str, vtp_path: str, device: torch.device):
 
     print(f"[load] ✅ Models loaded successfully")
     print(f"        VTP:             {vtp_path}")
-    print(f"        Encoder-decoder: {model_repo}")
+    print(f"        Encoder-decoder: {DEFAULT_MODEL_REPO}/checkpoints/{model_filename}")
     return model, visual_encoder
 
 
@@ -217,8 +218,9 @@ def main():
         help="Path to the input .avi clip",
     )
     parser.add_argument(
-        "--model", type=str, default=DEFAULT_MODEL,
-        help="HuggingFace repo for the encoder-decoder model",
+        "--model", type=str, default=DEFAULT_MODEL_FILENAME,
+        help="Checkpoint filename in vsro200/models-vsro200 (e.g. model_200h_auto.pt, "
+            "model_150h_auto.pt, model_100h_annot.pt). See HF repo for the full list.",
     )
     parser.add_argument(
         "--vtp_path", type=str, default=DEFAULT_VTP_PATH,

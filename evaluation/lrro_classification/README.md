@@ -82,8 +82,8 @@ Expected output:
 ```
 [device] cuda
 [load] Loading VTP visual encoder ...
-[load] Downloading VSR encoder from iulik-pisik/ro_vsr_150h_auto
-[load] Downloading MLP from iulik-pisik/ro_vsr_classification_mlps/64_bottom/best_wild_clf.pt
+[load] Downloading VSR encoder from vsro200/models-vsro200/checkpoints/model_200h_auto.pt
+[load] Downloading MLP from vsro200/mlp-lrro-vsro200/64_bottom/best_wild_clf.pt
 [load] MLP has 21 output classes
 [load] Class names auto-detected from LRRo folder structure
 [infer] Running inference ...
@@ -157,7 +157,7 @@ LRRo, demonstrating effective cross-domain transfer.
 ## Pre-trained MLPs
 
 All trained MLP heads are available on HuggingFace:
-[iulik-pisik/ro_vsr_classification_mlps](https://huggingface.co/iulik-pisik/ro_vsr_classification_mlps)
+[vsro200/mlp-lrro-vsro200](https://huggingface.co/vsro200/mlp-lrro-vsro200)
 
 ```
 ro_vsr_classification_mlps/

@@ -47,7 +47,7 @@ Expected output:
 
 ```
 [device] cuda
-[load] Downloading encoder-decoder from iulik-pisik/ro_vsr_175h_auto ...
+[load] Downloading encoder-decoder from vsro200/models-vsro200/checkpoints/model_200h_auto.pt ...
 [load] ✅ Models loaded successfully
 [video] Frames extracted: (1, 3, 146, 96, 96)
 [infer] Running inference ...
@@ -93,7 +93,7 @@ done
 ```bash
 python inference.py \
     --fpath samples/sample_1.avi \
-    --model iulik-pisik/ro_vsr_175h_auto \
+    --model vsro200/models-vsro200/checkpoints/model_200h_auto.pt \
     --beam_size 5 \
     --max_len 256 \
     --no_repeat_ngram_size 5
@@ -113,8 +113,8 @@ Available options:
 
 | Model | Training data | WER test_seen | WER test_unseen |
 | --- | --- | --- | --- |
-| `iulik-pisik/ro_vsr_175h_auto` | ~175h Romanian podcasts | XX% | YY% |
-| `iulik-pisik/ro_vsr_125h_auto` | ~125h Romanian podcasts | XX% | YY% |
+| `vsro200/models-vsro200/checkpoints/model_200h_auto.pt` | ~175h Romanian podcasts | XX% | YY% |
+| `vsro200/models-vsro200/checkpoints/model_125h_auto.pt` | ~125h Romanian podcasts | XX% | YY% |
 
 ## Inference on raw video
 
@@ -144,7 +144,7 @@ See [`docs/PREPROCESSING.md`](docs/PREPROCESSING.md) for details.
 
 The full VSRo-200 dataset (~200h of Romanian podcasts with transcriptions
 and word-level alignments) is available on HuggingFace:
-[iulik-pisik/ro_vsr](https://huggingface.co/datasets/iulik-pisik/ro_vsr).
+[vsro200/vsro200](https://huggingface.co/datasets/vsro200/vsro200).
 
 See [`docs/DATASET.md`](docs/DATASET.md) for splits, preprocessing, and
 statistics.

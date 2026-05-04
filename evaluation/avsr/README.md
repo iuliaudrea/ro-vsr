@@ -33,8 +33,8 @@ fusion mode):
 
 ```
 [device] cuda
-[load] Downloading VSR model from iulik-pisik/ro_vsr_150h_auto ...
-[load] Downloading Whisper from iulik-pisik/whisper-small-ro-noisy ...
+[load] Downloading VSR model from vsro200/models-vsro200/checkpoints/model_200h_auto.pt ...
+[load] Downloading Whisper from vsro200/whisper-small-vsro200 ...
 [load] ✅ All models loaded successfully
 [video] Frames extracted: (1, 3, 222, 96, 96)
 [audio] Samples loaded:   140288 (8.77s @ 16 kHz)
@@ -113,7 +113,7 @@ across two noise types (babble and gaussian) at each SNR level:
 | **15** | 0.232 | 0.128 | 0.505 | 0.188 | **0.126** |
 
 ZS = zero-shot Whisper (`alexandradiaconu/whisper-small-echo-34`).
-FT = fine-tuned on VSRo + noise (our `iulik-pisik/whisper-small-ro-noisy`,
+FT = fine-tuned on VSRo + noise (our `vsro200/whisper-small-vsro200`,
 adapted from [Diaconu et al., 2026](https://arxiv.org/abs/2603.02368)).
 
  -->
@@ -123,8 +123,8 @@ adapted from [Diaconu et al., 2026](https://arxiv.org/abs/2603.02368)).
 
 ```
 --fpath          Path to input video (.mp4 or .avi, 160x160 with audio track)
---vsr_model      HF repo for the VSR model (default: iulik-pisik/ro_vsr_150h_auto)
---whisper_model  HF repo for Whisper (default: iulik-pisik/whisper-small-ro-noisy)
+--vsr_model      HF repo for the VSR model (default: vsro200/models-vsro200/checkpoints/model_200h_auto.pt)
+--whisper_model  HF repo for Whisper (default: vsro200/whisper-small-vsro200)
 --mode           hibrid_logp | whisper | multivsr (default: hibrid_logp)
 --beam_size      Beam size (default: 5)
 --max_len        Max output tokens (default: 256)

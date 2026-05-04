@@ -40,9 +40,9 @@ from transformers import WhisperForConditionalGeneration, WhisperProcessor
 REPO_ROOT = os.path.abspath(os.path.join(os.path.dirname(__file__), "..", ".."))
 sys.path.insert(0, REPO_ROOT)
 
-from ro_vsr.models import build_model, build_visual_encoder
-from ro_vsr.tokenizer import get_tokenizer
-from ro_vsr.metrics import lookup_reference, print_metrics_block
+from vsr_inference.models import build_model, build_visual_encoder
+from vsr_inference.tokenizer import get_tokenizer
+from vsr_inference.metrics import lookup_reference, print_metrics_block
 
 from beam_search_fusion import beam_search_fusion
 
@@ -51,8 +51,9 @@ from beam_search_fusion import beam_search_fusion
 # DEFAULTS
 # ============================================================
 
-DEFAULT_VSR_MODEL = "iulik-pisik/ro_vsr_150h_auto"
-DEFAULT_WHISPER_MODEL = "iulik-pisik/whisper-small-ro-noisy"
+DEFAULT_VSR_MODEL_REPO = "vsro200/models-vsro200"
+DEFAULT_VSR_MODEL_FILENAME = "model_200h_auto.pt"
+DEFAULT_WHISPER_MODEL = "vsro200/whisper-small-vsro200"
 DEFAULT_VTP_PATH = os.path.join(REPO_ROOT, "checkpoints/feature_extractor.pth")
 DEFAULT_METADATA = os.path.join(
     os.path.dirname(__file__), "samples_avsr", "samples_avsr_metadata.csv"
@@ -123,7 +124,7 @@ def read_audio(fpath: str, target_sr: int = 16000) -> torch.Tensor:
 # MODEL LOADING
 # ============================================================
 
-def load_vsr_models(vsr_repo: str, vtp_path: str, device: torch.device):
+def load_vsr_models(vsr_filename: str, vtp_path: str, device: torch.device):
     """Load the VSR encoder-decoder and the VTP visual encoder."""
     if not os.path.isfile(vtp_path):
         raise FileNotFoundError(
@@ -142,9 +143,11 @@ def load_vsr_models(vsr_repo: str, vtp_path: str, device: torch.device):
     for p in visual_encoder.parameters():
         p.requires_grad = False
 
-    print(f"[load] Downloading VSR model from {vsr_repo} ...")
+    print(f"[load] Downloading VSR model from {DEFAULT_VSR_MODEL_REPO}/checkpoints/{vsr_filename} ...")
     lm_path = hf_hub_download(
-        repo_id=vsr_repo, filename="checkpoints/best_model.pt", repo_type="model",
+        repo_id=DEFAULT_VSR_MODEL_REPO,
+        filename=f"checkpoints/{vsr_filename}",
+        repo_type="model",
     )
     model = build_model().to(device).eval()
     model.load_state_dict(torch.load(lm_path, map_location=device))
@@ -234,8 +237,8 @@ def main():
     )
     parser.add_argument("--fpath", type=str, required=True,
                         help="Path to the input video file (.mp4 or .avi, 160x160 with audio)")
-    parser.add_argument("--vsr_model", type=str, default=DEFAULT_VSR_MODEL,
-                        help="HuggingFace repo for the VSR encoder-decoder")
+    parser.add_argument("--vsr_model", type=str, default=DEFAULT_VSR_MODEL_FILENAME,
+                    help="Checkpoint filename in vsro200/models-vsro200 (e.g. model_200h_auto.pt)")
     parser.add_argument("--whisper_model", type=str, default=DEFAULT_WHISPER_MODEL,
                         help="HuggingFace repo for the Whisper model")
     parser.add_argument("--vtp_path", type=str, default=DEFAULT_VTP_PATH,
