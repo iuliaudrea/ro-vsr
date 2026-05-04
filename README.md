@@ -7,9 +7,11 @@ Building upon the MultiVSR architecture, which we fine-tune with our data, we es
 🤗 **[Dataset & Models on Hugging Face: vsro200](https://huggingface.co/datasets/vsro200/vsro200)**
 
 
+<br>
 <p align="center">
     <img src="dataset/vsro_dataset.gif"/>
 </p>
+<br>
 
 ## What's in this repo
 
