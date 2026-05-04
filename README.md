@@ -1,9 +1,11 @@
 # VSRo-200: Visual Speech Recognition for Romanian
 
-We introduce **VSRo-200**, the first sentence-level dataset and visual
-speech recognition system for Romanian. The dataset contains approximately
-200 hours of Romanian podcast recordings with both Whisper-generated
-transcriptions and human annotations. In addition, we provide an audio-visual extension for noisy conditions and a word-level evaluation on the LRRo benchmark.
+We introduce **VSRo-200**, the first sentence-level dataset and visual speech recognition system for Romanian. The dataset contains approximately 200 hours of Romanian podcast recordings with both Whisper-generated transcriptions and human annotations. 
+
+Building upon the MultiVSR architecture, which we fine-tune with our data, we establish the first sentence-level VSR baseline for the Romanian language. In addition, we provide an audio-visual speech recognition (AVSR) extension for noisy conditions and a word-level evaluation on the LRRo benchmark.
+
+🤗 **[Dataset & Models on Hugging Face: vsro200](https://huggingface.co/datasets/vsro200/vsro200)**
+
 
 <p align="center">
     <img src="dataset/vsro_dataset.gif"/>
@@ -59,12 +61,18 @@ CER:            6.77%
 The `samples/` folder ships with several short VSR clips. Each clip is
 a 224×224 face crop produced by MultiVSR's preprocessing pipeline.
 
-| Sample | Duration | Reference | WER | CER |
-| --- | --- | --- | --- | --- |
-| _to be filled in_ | | | | |
+| Sample | Reference |
+| :--- | :--- |
+| `samples/sample_1.avi` | poate în subconștientul meu pentru că totuși am o vârstă și spun sincer nu neapărat că mi-aș dori îmi doresc o familie dar parcă deja |
+| `samples/sample_2.avi` | băi și îți dai seama nu aveți voie să fumați o să vă spun |
+| `samples/sample_3.avi` | mi-au suportat multe și eu le-am suportat eu lor dar așa e |
+| `samples/sample_4.avi` | cumva vreau să și înțeleg de ce în anumite momente eu des- detest omenirea și umanitatea și înțelegi |
+| `samples/sample_5.avi` | cred că ăsta e cel mai frumos mod să descoperi un oraș o iei așa la pas nu știi nimic nu știu la ce să te aștepți și acum am dat și de china town |
+| `samples/sample_6.avi` | opoziții tot astfel cum o judecată are două valori adevărată sau fals |
+| `samples/sample_7.avi` | dar nu-l mai poate suporta nimeni atâta timp cât te bagi tu în în poliție |
+| `samples/sample_8.avi` | ne referim la creșterea particulelor de ldl colesterol care sunt agresive la nivelul peretelui arterial la trigliceride sau din contră scăderea acelor particule de colesterol |
 
-Inputs to `inference.py` must be `.avi` face crops. To run the system
-on raw video, see the preprocessing pipeline in [`dataset/`](dataset/).
+For full details, including sample splits and video categories, see [`samples/samples_metadata.csv`](samples/samples_metadata.csv).
 
 ## Other experiments
 

@@ -164,7 +164,7 @@ If you use this setup, please also cite the original LRRo paper:
 ```bibtex
 @inproceedings{jitaru2020lrro,
     author    = "Jitaru, Andrei Cosmin and Abdulamit, Șeila and Ionescu, Bogdan",
-    title     = "{LRRo}: A Lip Reading Data Set for the Under-resourced Romanian Language",
+    title     = "LRRo: A Lip Reading Data Set for the Under-resourced Romanian Language",
     booktitle = "Proceedings of the 11th ACM Multimedia Systems Conference",
     pages     = "267-272",
     year      = "2020",

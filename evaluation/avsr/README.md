@@ -115,12 +115,3 @@ audio model and Whisper itself:
   url    = {https://arxiv.org/abs/2603.02368},
 }
 ```
-```bibtex
-@misc{radford2022whisper,
-  title  = {Robust Speech Recognition via Large-Scale Weak Supervision},
-  author = {Radford, Alec and Kim, Jong Wook and Xu, Tao and Brockman, Greg
-            and McLeavey, Christine and Sutskever, Ilya},
-  year   = {2022},
-  url    = {https://arxiv.org/abs/2212.04356},
-}
-```
